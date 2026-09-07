@@ -1,0 +1,1073 @@
+:root {
+  --bg: #faf9f7;
+  --card-bg: #ffffff;
+  --text: #2d2a26;
+  --text-muted: #8a857e;
+  --accent: #e07a5f;
+  --border: #eceae6;
+  --radius: 16px;
+  --shadow: 0 1px 3px rgba(45, 42, 38, 0.06), 0 4px 16px rgba(45, 42, 38, 0.04);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* ---------- Dark theme (Material Design: dark surfaces + elevation) ---------- */
+body.dark {
+  color-scheme: dark;
+  --bg: #121212;
+  --card-bg: #1e1e1e;
+  --text: #e8eaed;
+  --text-muted: #9aa0a6;
+  --border: #323232;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .card {
+  --card-bg: #242424;
+}
+
+body.dark .todo-form input,
+body.dark .setting-row select,
+body.dark .setting-row input[type="text"] {
+  --bg: #2a2a2a;
+}
+
+body.dark .suggestion-item:hover,
+body.dark .suggestion-item.active,
+body.dark .todo-item:hover {
+  background: #2a2a2a;
+}
+
+body.dark .time {
+  color: #f1f3f4;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+body.dark .greeting,
+body.dark .date {
+  color: #bdc1c6;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(16px, 3.5vh, 48px) 24px clamp(12px, 2.5vh, 32px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(14px, 3vh, 40px);
+  height: 100vh;
+  min-height: 620px;
+}
+
+/* ---------- Clock ---------- */
+.clock-section {
+  text-align: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.time {
+  font-size: clamp(42px, 8vh, 64px);
+  font-weight: 300;
+  letter-spacing: -2px;
+  line-height: 1;
+}
+
+.greeting {
+  margin-top: clamp(6px, 1.4vh, 12px);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.date {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* ---------- Top bar (logo / slogan / settings) ---------- */
+.top-bar {
+  position: fixed;
+  top: 20px;
+  left: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  z-index: 10;
+}
+
+.slogan {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: 0.75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* ---------- Brand logo ---------- */
+.brand-logo {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  opacity: 0.9;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.brand-logo:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+body.dark .brand-logo path {
+  stroke: #e8eaed;
+}
+
+/* ---------- Settings ---------- */
+.settings-toggle {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card-bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.settings-toggle:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---------- Sign in / account ---------- */
+.auth-toggle {
+  height: 38px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card-bg);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0 16px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.auth-toggle:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.auth-toggle.signed-in {
+  width: 38px;
+  padding: 0;
+  font-size: 15px;
+  border-radius: 50%;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.settings-panel {
+  position: fixed;
+  top: 66px;
+  right: 20px;
+  width: 280px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+  z-index: 20;
+  overflow: hidden;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-close {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.settings-close:hover {
+  color: var(--text);
+}
+
+.settings-body {
+  padding: 8px 16px 16px;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.setting-row:last-child {
+  border-bottom: none;
+}
+
+.setting-row select,
+.setting-row input[type="text"] {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  max-width: 140px;
+}
+
+.setting-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.color-options {
+  display: flex;
+  gap: 6px;
+}
+
+.color-option {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s ease;
+}
+
+.color-option:hover {
+  transform: scale(1.15);
+}
+
+.color-option.selected {
+  border-color: var(--text);
+}
+
+/* ---------- Search ---------- */
+.search-form {
+  position: relative;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.search-form input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 13px 20px 13px 42px;
+  font-size: 15px;
+  font-family: inherit;
+  background: var(--card-bg);
+  color: var(--text);
+  outline: none;
+  box-shadow: var(--shadow);
+  transition: border-color 0.15s ease;
+}
+
+.search-form input:focus {
+  border-color: var(--accent);
+}
+
+.search-form input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ---------- Search suggestions ---------- */
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  z-index: 15;
+  padding: 4px;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.suggestion-item:hover,
+.suggestion-item.active {
+  background: var(--bg);
+}
+
+.suggestion-icon {
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+/* ---------- Cards ---------- */
+.middle-row {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(320px, 1.8fr) minmax(260px, 1fr);
+  gap: clamp(36px, 4vw, 56px);
+  align-items: stretch;
+  flex: 0 0 auto;
+  min-height: clamp(300px, 38vh, 430px);
+}
+
+/* ---------- Center column (search + bookmarks) ---------- */
+.center-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-self: start;
+  width: 100%;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+
+.card-header {
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+/* ---------- Todo card ---------- */
+.todo-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.todo-card .card-header {
+  flex-shrink: 0;
+}
+
+.todo-card .todo-list {
+  flex: 1;
+  min-height: 0;
+}
+
+.todo-card .todo-form {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+/* ---------- Calendar card ---------- */
+.calendar-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-card .calendar-grid {
+  flex: 1;
+  align-content: space-evenly;
+}
+
+/* ---------- Todo list ---------- */
+.todo-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+  min-height: 24px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.todo-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.todo-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.todo-item:hover {
+  background: var(--bg);
+}
+
+.todo-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.todo-edit {
+  flex: 1;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  min-width: 0;
+}
+
+.todo-remove {
+  margin-left: auto;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  flex-shrink: 0;
+  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+  padding: 0;
+}
+
+.todo-item:hover .todo-remove {
+  opacity: 1;
+}
+
+.todo-remove:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.todo-text {
+  font-size: 14px;
+  cursor: text;
+  word-break: break-word;
+}
+
+.todo-item .todo-text {
+  flex: 1;
+}
+
+.todo-item.done .todo-text {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.todo-item.done .todo-remove {
+  opacity: 0;
+}
+
+.todo-item.done:hover .todo-remove {
+  opacity: 1;
+}
+
+.todo-empty {
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 4px 6px;
+  list-style: none;
+}
+
+.todo-form {
+  display: flex;
+  gap: 8px;
+}
+
+.todo-form input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.todo-form input:focus {
+  border-color: var(--accent);
+}
+
+.todo-form button {
+  width: 41px;
+  height: 41px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: opacity 0.15s ease;
+}
+
+.todo-form button:hover {
+  opacity: 0.85;
+}
+
+/* ---------- Todo header (date nav + clear) ---------- */
+.todo-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.day-nav {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.day-nav:hover {
+  color: var(--text);
+  background: var(--bg);
+}
+
+.todo-date-label {
+  border: none;
+  background: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 6px;
+}
+
+.todo-date-label:hover {
+  color: var(--accent);
+}
+
+.todo-clear-btn {
+  margin-left: auto;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 3px 8px;
+  border-radius: 8px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.todo-clear-btn:hover {
+  color: var(--accent);
+  background: var(--bg);
+}
+
+/* ---------- Calendar ---------- */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.day-name {
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 7px 0;
+}
+
+.day-cell {
+  position: relative;
+  padding: 7px 0;
+  border-radius: 8px;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.day-cell.has-todos::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.day-cell.selected.has-todos::after {
+  background: #fff;
+}
+
+.day-cell:hover {
+  background: var(--bg);
+}
+
+.day-cell.today {
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+.day-cell.selected {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ---------- Bookmarks ---------- */
+.bookmarks-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-header .card-header {
+  margin-bottom: 0;
+}
+
+.add-bookmark-btn {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card-bg);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-family: inherit;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.add-bookmark-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.bookmarks-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-content: flex-start;
+  max-height: clamp(44px, 16vh, 132px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  padding: 6px;
+  margin: -6px;
+}
+
+.bookmarks-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bookmarks-container::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.bookmark-item {
+  position: relative;
+  display: inline-flex;
+}
+
+.bookmark-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  color: var(--text);
+  font-size: 13px;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.bookmark-link:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent);
+}
+
+.bookmark-link img {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.bookmark-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: var(--text-muted);
+  color: var(--card-bg);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  padding: 0;
+}
+
+.bookmark-item:hover .bookmark-remove {
+  opacity: 1;
+}
+
+.bookmark-remove:hover {
+  background: var(--accent);
+}
+
+.bookmarks-empty {
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 8px 2px;
+}
+
+/* ---------- Shortcuts ---------- */
+.shortcuts-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.shortcuts-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.shortcut-item-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  color: var(--text);
+  font-size: 13px;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.shortcut-item:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent);
+}
+
+.shortcut-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: var(--text-muted);
+  color: var(--card-bg);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+  padding: 0;
+  z-index: 1;
+}
+
+.shortcut-item-wrapper:hover .shortcut-remove {
+  opacity: 1;
+}
+
+.shortcut-remove:hover {
+  background: var(--accent);
+}
+
+.shortcut-icon img {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.shortcut-icon img,
+.shortcut-icon {
+  max-width: 16px;
+}
+
+.add-shortcut-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 18px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.add-shortcut-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ---------- Background setting ---------- */
+.gradient-options {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.gradient-option {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s ease;
+}
+
+.gradient-option:hover {
+  transform: scale(1.12);
+}
+
+.gradient-option.selected {
+  border-color: var(--text);
+}
+
+.setting-row-stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.setting-row-stack span {
+  font-size: 13px;
+}
+
+.setting-row-stack input[type="text"] {
+  max-width: none;
+  width: 100%;
+}
+
+/* ---------- Responsive: medium screens ---------- */
+@media (max-width: 1100px) {
+  .middle-row {
+    gap: 20px;
+  }
+}
+
+/* ---------- Responsive: tablets ---------- */
+@media (max-width: 960px) {
+  .container {
+    height: auto;
+    min-height: 100vh;
+    justify-content: flex-start;
+  }
+
+  .middle-row {
+    grid-template-columns: 1fr 1fr;
+    min-height: 0;
+  }
+
+  .center-column {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    align-self: stretch;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  .todo-card {
+    min-height: 280px;
+  }
+
+  .calendar-card {
+    min-height: 280px;
+  }
+}
+
+/* ---------- Responsive: phones ---------- */
+@media (max-width: 640px) {
+  .container {
+    padding: 16px 16px 20px;
+    gap: 20px;
+  }
+
+  .top-bar {
+    gap: 8px;
+  }
+
+  .brand-logo {
+    width: 28px;
+    height: 28px;
+  }
+
+  .slogan {
+    display: none;
+  }
+
+  .middle-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .time {
+    font-size: clamp(40px, 10vw, 56px);
+    letter-spacing: -1px;
+  }
+
+  .greeting {
+    font-size: 16px;
+  }
+
+  .card {
+    padding: 18px;
+  }
+
+  .todo-card,
+  .calendar-card {
+    min-height: 0;
+  }
+
+  .todo-card {
+    min-height: 240px;
+  }
+}
+
+/* ---------- Responsive: very short screens ---------- */
+@media (max-height: 620px) {
+  .container {
+    height: auto;
+    justify-content: flex-start;
+  }
+
+  .time {
+    font-size: 38px;
+  }
+
+  .middle-row {
+    min-height: 280px;
+  }
+}
