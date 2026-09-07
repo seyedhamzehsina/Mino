@@ -118,6 +118,7 @@ const AuthModule = {
       btn.hidden = true;
       return;
     }
+    btn.hidden = false;
     if (this.session && this.session.user) {
       const initial = (this.session.user.name || this.session.user.email || '?').trim().charAt(0).toUpperCase();
       btn.textContent = initial;
