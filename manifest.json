@@ -9,7 +9,8 @@
     "128": "assets/icons/icon-128.png"
   },
   "permissions": [
-    "storage"
+    "storage",
+    "identity"
   ],
   "host_permissions": [
     "https://suggestqueries.google.com/*",
