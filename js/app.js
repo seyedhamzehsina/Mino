@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
+  DialogModule.init();
   await ClockModule.init();
   await TodoModule.init();
   await AuthModule.init();
@@ -6,5 +7,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   ShortcutsModule.init();
   SettingsModule.init();
   SearchModule.init();
-  SyncModule.init();
+  await SyncModule.init();
 });

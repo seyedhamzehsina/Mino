@@ -1,13 +1,15 @@
 const SyncModule = {
   lastSyncAt: null,
-  tombstones: [], // ids deleted locally, not yet pushed
+  tombstones: [], // deleted todo snapshots waiting to be sent
   syncing: false,
 
   async init() {
     if (!SyncConfig.enabled) return;
     this.lastSyncAt = await StorageManager.get('lastSyncAt') || null;
+    this.tombstones = await StorageManager.get('syncTombstones') || [];
     document.addEventListener('todos-changed', () => this.push());
-    if (AuthModule.session) await this.pull();
+    document.addEventListener('auth-session-changed', () => this.syncAfterAuthentication());
+    if (AuthModule.session) await this.syncAfterAuthentication();
   },
 
   restHeaders(extra = {}) {
@@ -19,10 +21,22 @@ const SyncModule = {
     };
   },
 
-  queueDelete(id) {
-    if (typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id)) {
-      this.tombstones.push(id);
-    }
+  async queueDelete(todo, dateKey) {
+    if (!todo || typeof todo.id !== 'string' || !/^\d{8}-\d{4}-\d{4}-\d{4}-\d{12}$/i.test(todo.id)) return;
+    this.tombstones = this.tombstones.filter(item => item.id !== todo.id);
+    this.tombstones.push({
+      id: todo.id,
+      date_key: dateKey,
+      text: todo.text || '',
+      done: !!todo.done,
+      updated_at: new Date().toISOString()
+    });
+    await StorageManager.set('syncTombstones', this.tombstones);
+  },
+
+  async syncAfterAuthentication() {
+    await this.pull();
+    await this.push();
   },
 
   // Push locally-changed todos (dirty flag) and deletions (tombstones) to the server.
@@ -49,8 +63,8 @@ const SyncModule = {
           }
         });
       });
-      this.tombstones.forEach(id => {
-        rows.push({ id, user_id: uid, deleted: true, updated_at: new Date().toISOString() });
+      this.tombstones.forEach(tombstone => {
+        rows.push({ ...tombstone, user_id: uid, deleted: true });
       });
 
       if (rows.length) {
@@ -59,15 +73,17 @@ const SyncModule = {
           headers: this.restHeaders({ Prefer: 'resolution=merge-duplicates' }),
           body: JSON.stringify(rows)
         });
-        if (res.ok) {
-          touched.forEach(t => { delete t.dirty; });
-          this.tombstones = [];
-          await TodoModule.save();
-        }
+        if (!res.ok) throw new Error(`Todo sync failed (${res.status}).`);
+        touched.forEach(t => { delete t.dirty; });
+        this.tombstones = [];
+        await TodoModule.save();
+        await StorageManager.set('syncTombstones', this.tombstones);
       }
       this.lastSyncAt = new Date().toISOString();
       await StorageManager.set('lastSyncAt', this.lastSyncAt);
-    } catch {} finally {
+    } catch (error) {
+      console.error('Todo sync failed:', error);
+    } finally {
       this.syncing = false;
     }
   },
@@ -120,7 +136,9 @@ const SyncModule = {
         // syncing=true guard prevents this from re-triggering push()
         document.dispatchEvent(new Event('todos-changed'));
       }
-    } catch {} finally {
+    } catch (error) {
+      console.error('Todo pull failed:', error);
+    } finally {
       this.syncing = false;
     }
   }

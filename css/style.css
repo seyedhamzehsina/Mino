@@ -1071,3 +1071,627 @@ body.dark .brand-logo path {
     min-height: 280px;
   }
 }
+
+/* ---------- Release UI: liquid glass, collapsible panels, and RTL ---------- */
+:root {
+  --glass-opacity: 0.62;
+  --glass-blur: 18px;
+  --control-height: 48px;
+  --input-bg: rgba(255, 255, 255, 0.54);
+  --accent-glow: rgba(224, 122, 95, 0.24);
+  interpolate-size: allow-keywords;
+}
+
+body {
+  --card-bg: rgba(255, 255, 255, var(--glass-opacity));
+  --text: #172033;
+  --text-muted: #526078;
+  --border: rgba(255, 255, 255, 0.72);
+  --shadow: 0 12px 32px rgba(48, 70, 110, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  background-color: #e8eef8;
+  isolation: isolate;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.72), transparent 30%),
+    radial-gradient(circle at 88% 8%, rgba(167, 205, 255, 0.48), transparent 32%),
+    radial-gradient(circle at 54% 100%, rgba(255, 193, 176, 0.30), transparent 36%);
+}
+
+body.dark {
+  --bg: #111827;
+  --card-bg: rgba(15, 23, 42, var(--glass-opacity));
+  --input-bg: rgba(30, 41, 59, 0.78);
+  --text: #f3f7ff;
+  --text-muted: #bdc8da;
+  --border: rgba(194, 211, 239, 0.22);
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+body.dark::before {
+  background:
+    radial-gradient(circle at 8% 12%, rgba(75, 125, 255, 0.20), transparent 31%),
+    radial-gradient(circle at 93% 18%, rgba(156, 100, 255, 0.18), transparent 33%),
+    radial-gradient(circle at 50% 110%, rgba(0, 214, 193, 0.10), transparent 38%);
+}
+
+body.dark .card {
+  --card-bg: rgba(15, 23, 42, var(--glass-opacity));
+}
+
+.middle-row {
+  align-items: start;
+}
+
+.card,
+.settings-panel,
+.auth-toggle,
+.auth-signout,
+.settings-toggle,
+.search-form input,
+.shortcut-item,
+.add-shortcut-btn {
+  background: var(--card-bg);
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+}
+
+.search-form input {
+  height: var(--control-height);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.todo-form input,
+.todo-edit,
+.setting-row select,
+.setting-row input[type="text"] {
+  background: var(--input-bg);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.day-nav:hover,
+.todo-clear-btn:hover,
+.todo-item:hover,
+.suggestion-item:hover,
+.suggestion-item.active,
+.day-cell:hover {
+  background: var(--input-bg);
+}
+
+.auth-signout {
+  height: 38px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+.auth-signout:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.settings-panel {
+  max-height: calc(100vh - 86px);
+  overflow-y: auto;
+}
+
+.setting-row input[type="range"] {
+  width: 120px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.theme-options,
+.calendar-options {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--input-bg);
+}
+
+.theme-options button,
+.calendar-options button {
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+.theme-options button.selected,
+.calendar-options button.selected {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 3px 10px var(--accent-glow);
+}
+
+.color-option.selected,
+.gradient-option.selected {
+  box-shadow: 0 0 0 2px var(--card-bg), 0 0 0 4px var(--accent);
+}
+
+.collapsible-card {
+  display: block;
+  height: var(--control-height);
+  min-height: var(--control-height);
+  max-height: var(--control-height);
+  padding: 0;
+  overflow: hidden;
+  transition:
+    height 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    min-height 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    max-height 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.collapsible-card[open] {
+  height: 320px;
+  min-height: 320px;
+  max-height: 320px;
+  border-color: color-mix(in srgb, var(--accent) 46%, var(--border));
+}
+
+.collapsible-card::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition:
+    block-size 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    content-visibility 280ms allow-discrete;
+}
+
+.collapsible-card[open]::details-content {
+  block-size: auto;
+}
+
+.collapsible-summary {
+  height: calc(var(--control-height) - 2px);
+  min-height: calc(var(--control-height) - 2px);
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.collapsible-summary::-webkit-details-marker {
+  display: none;
+}
+
+.collapsible-summary:hover {
+  color: var(--accent);
+}
+
+.collapsible-card[open] .collapsible-summary {
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-chevron {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), color 180ms ease;
+}
+
+.panel-chevron svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.collapsible-card[open] .panel-chevron {
+  transform: rotate(180deg);
+}
+
+.collapsible-content {
+  height: calc(320px - var(--control-height));
+  min-height: 0;
+  padding: 12px 16px 16px;
+  overflow: hidden;
+}
+
+.collapsible-inner {
+  height: 100%;
+  min-height: 0;
+}
+
+.todo-card .collapsible-inner,
+.calendar-card .collapsible-inner {
+  display: flex;
+  flex-direction: column;
+}
+
+.todo-card .todo-header {
+  flex: 0 0 auto;
+  margin-bottom: 8px;
+}
+
+.todo-card .todo-list {
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: none;
+  margin-bottom: 8px;
+  padding: 0;
+  gap: 4px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.todo-card .todo-form {
+  position: static;
+  flex: 0 0 auto;
+  margin-top: auto;
+}
+
+.todo-form {
+  gap: 6px;
+}
+
+.todo-form input,
+.todo-form button {
+  height: 40px;
+}
+
+.todo-form input {
+  padding: 0 12px;
+  font-size: 14px;
+  text-align: start;
+}
+
+.todo-form button {
+  width: 40px;
+  font-size: 18px;
+}
+
+.todo-item {
+  min-height: 36px;
+  padding: 6px 8px;
+}
+
+.todo-text {
+  line-height: 1.45;
+  text-align: start;
+}
+
+.todo-item.rtl {
+  direction: rtl;
+}
+
+.todo-remove {
+  margin-left: 0;
+  margin-inline-start: auto;
+}
+
+.todo-card .todo-empty {
+  padding: 6px 8px;
+}
+
+.calendar-card .calendar-grid {
+  flex: 1 1 auto;
+  align-content: space-evenly;
+  min-height: 0;
+}
+
+.card,
+.settings-panel,
+.auth-toggle,
+.auth-signout,
+.settings-toggle,
+.shortcut-item,
+.add-shortcut-btn,
+.search-form input,
+.todo-form input,
+.todo-form button,
+.day-cell,
+.todo-item,
+.collapsible-summary,
+.theme-options button,
+.calendar-options button {
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.shortcut-item:hover,
+.add-shortcut-btn:hover,
+.settings-toggle:hover,
+.auth-toggle:hover,
+.auth-signout:hover {
+  transform: translateY(-1px);
+}
+
+.collapsible-summary:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 960px) {
+  .collapsible-card {
+    min-height: var(--control-height);
+  }
+
+  .collapsible-card[open] {
+    height: 320px;
+    min-height: 320px;
+    max-height: 320px;
+  }
+
+  .todo-card,
+  .calendar-card {
+    min-height: var(--control-height);
+  }
+
+  .todo-card[open],
+  .calendar-card[open] {
+    min-height: 320px;
+  }
+}
+
+@media (max-width: 640px) {
+  .collapsible-card[open] {
+    height: 300px;
+    min-height: 300px;
+    max-height: 300px;
+  }
+
+  .collapsible-content {
+    height: calc(300px - var(--control-height));
+  }
+
+  .todo-card,
+  .calendar-card {
+    min-height: var(--control-height);
+  }
+
+  .todo-card[open],
+  .calendar-card[open] {
+    min-height: 300px;
+  }
+
+  .auth-signout {
+    padding: 0 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Bottom slogan and pixel-sampled image contrast ---------- */
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slogan {
+  position: fixed;
+  right: auto;
+  bottom: 16px;
+  left: 50%;
+  z-index: 10;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  transform: translateX(-50%);
+  pointer-events: none;
+  text-align: center;
+}
+
+body.has-image-background .clock-section {
+  width: auto;
+  min-width: 0;
+  margin-right: 0;
+  margin-left: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+body.has-image-background .adaptive-light .time,
+body.has-image-background .adaptive-light .greeting,
+body.has-image-background .adaptive-light .date,
+body.has-image-background .slogan.adaptive-light {
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.86), 0 0 12px rgba(0, 0, 0, 0.40);
+}
+
+body.has-image-background .adaptive-dark .time,
+body.has-image-background .adaptive-dark .greeting,
+body.has-image-background .adaptive-dark .date,
+body.has-image-background .slogan.adaptive-dark {
+  color: #111827;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.72), 0 0 10px rgba(255, 255, 255, 0.34);
+}
+
+body.has-image-background .slogan {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  opacity: 0.92;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+body.has-image-background .clock-section:not(.adaptive-dark):not(.adaptive-light) .time,
+body.has-image-background .clock-section:not(.adaptive-dark):not(.adaptive-light) .greeting,
+body.has-image-background .clock-section:not(.adaptive-dark):not(.adaptive-light) .date,
+body.has-image-background .slogan:not(.adaptive-dark):not(.adaptive-light) {
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.86), 0 0 12px rgba(0, 0, 0, 0.40);
+}
+
+@media (max-width: 640px) {
+  .slogan {
+    bottom: 10px;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+  }
+}
+
+/* ---------- In-app confirmations and account entry ---------- */
+.app-dialog {
+  width: min(420px, calc(100vw - 32px));
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text);
+  background: var(--card-bg);
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+}
+
+.app-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.38);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+.app-dialog-card {
+  position: relative;
+  padding: 28px;
+}
+
+.app-dialog-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.app-dialog-close:hover {
+  background: rgba(127, 127, 127, 0.12);
+  color: var(--text);
+}
+
+.app-dialog-kicker {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.app-dialog h2 {
+  margin: 0;
+  font-size: 21px;
+  letter-spacing: -0.02em;
+}
+
+#app-dialog-message {
+  margin: 10px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.app-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.dialog-button {
+  min-height: 38px;
+  border-radius: 10px;
+  padding: 0 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.dialog-button:hover { transform: translateY(-1px); }
+
+.dialog-button-secondary {
+  border: 1px solid var(--border);
+  background: rgba(127, 127, 127, 0.10);
+  color: var(--text);
+}
+
+.dialog-button-primary {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 6px 16px var(--accent-glow);
+}
+
+.app-dialog.is-destructive .dialog-button-primary {
+  border-color: #d9534f;
+  background: #d9534f;
+  box-shadow: 0 6px 16px rgba(217, 83, 79, 0.28);
+}
+
+body.dark .app-dialog {
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 640px) {
+  .app-dialog-card { padding: 24px 20px 20px; }
+  .app-dialog-actions { flex-direction: column-reverse; }
+  .dialog-button { width: 100%; }
+}

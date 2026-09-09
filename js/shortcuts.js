@@ -26,7 +26,7 @@ const ShortcutsModule = {
     try {
       hostname = new URL(normalized).hostname;
     } catch {
-      alert('Invalid URL.');
+      await DialogModule.notice({ title: 'Invalid link', message: 'Enter a valid website address and try again.', kicker: 'Shortcuts' });
       return;
     }
     const name = prompt('Shortcut name:', hostname.replace(/^www\./, '')) || hostname;
@@ -35,6 +35,16 @@ const ShortcutsModule = {
     this.render();
   },
   async removeShortcut(id) {
+    const shortcut = this.shortcuts.find(item => item.id === id);
+    if (!shortcut) return;
+    const confirmed = await DialogModule.confirm({
+      title: 'Remove this shortcut?',
+      message: `${shortcut.name} will be removed from your new tab.`,
+      confirmLabel: 'Remove shortcut',
+      destructive: true,
+      kicker: 'Shortcuts'
+    });
+    if (!confirmed) return;
     this.shortcuts = this.shortcuts.filter(sc => sc.id !== id);
     await this.save();
     this.render();

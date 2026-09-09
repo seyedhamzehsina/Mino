@@ -75,21 +75,38 @@ const TodoModule = {
     this.notifyCalendar();
   },
   async deleteTodo(id) {
+    const todo = this.todos.find(t => t.id === id);
+    if (!todo) return;
+    const confirmed = await DialogModule.confirm({
+      title: 'Delete this task?',
+      message: `“${todo.text}” will be removed from this day.`,
+      confirmLabel: 'Delete task',
+      destructive: true,
+      kicker: 'Todo list'
+    });
+    if (!confirmed) return;
     this.todos = this.todos.filter(t => t.id !== id);
     await this.save();
     this.render();
+    if (typeof SyncModule !== 'undefined') SyncModule.queueDelete(todo, this.selectedDate);
     this.notifyCalendar();
-    if (typeof SyncModule !== 'undefined') SyncModule.queueDelete(id);
   },
   async clearAll() {
     if (!this.todos.length) return;
-    if (!confirm(`Delete all ${this.todos.length} task(s) for this day?`)) return;
-    const removed = this.todos.map(t => t.id);
+    const confirmed = await DialogModule.confirm({
+      title: 'Clear this day?',
+      message: `${this.todos.length} task${this.todos.length === 1 ? '' : 's'} will be removed. This cannot be undone.`,
+      confirmLabel: 'Clear all',
+      destructive: true,
+      kicker: 'Todo list'
+    });
+    if (!confirmed) return;
+    const removed = this.todos;
     this.todos = [];
     await this.save();
     this.render();
+    if (typeof SyncModule !== 'undefined') removed.forEach(todo => SyncModule.queueDelete(todo, this.selectedDate));
     this.notifyCalendar();
-    if (typeof SyncModule !== 'undefined') removed.forEach(id => SyncModule.queueDelete(id));
   },
   hasOpenTodos(key) {
     const todos = this.todosByDate[key];
@@ -104,6 +121,7 @@ const TodoModule = {
     this.todos = this.todos.map(t => t.id === id ? { ...t, text, updated_at: Date.now(), dirty: true } : t);
     await this.save();
     this.render();
+    this.notifyCalendar();
   },
   startEdit(li, todo) {
     if (li.querySelector('.todo-edit')) return;
@@ -147,6 +165,7 @@ const TodoModule = {
     this.todos.forEach(todo => {
       const li = document.createElement('li');
       li.className = 'todo-item';
+      if (this.isRtlText(todo.text)) li.classList.add('rtl');
       if (todo.done) li.classList.add('done');
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
@@ -155,6 +174,7 @@ const TodoModule = {
       checkbox.addEventListener('change', () => this.toggleTodo(todo.id));
       const span = document.createElement('span');
       span.className = 'todo-text';
+      span.dir = 'auto';
       span.textContent = todo.text;
       span.title = 'Double-click to edit';
       span.addEventListener('dblclick', () => this.startEdit(li, todo));
@@ -174,5 +194,8 @@ const TodoModule = {
       empty.textContent = 'No tasks for this day yet.';
       list.appendChild(empty);
     }
+  },
+  isRtlText(text) {
+    return /[\u0590-\u08ff]/.test(text);
   }
 };

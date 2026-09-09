@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mino Privacy Policy</title>
+  <style>body{max-width:720px;margin:48px auto;padding:0 20px;font:16px/1.6 system-ui,sans-serif;color:#2d2a26}h1{line-height:1.2}small{color:#666}</style>
+</head>
+<body>
+  <h1>Mino Privacy Policy</h1>
+  <p><small>Last updated: September 9, 2026</small></p>
+  <p>Mino is a Chrome new-tab extension. It provides a clock, calendar, daily todo list, web search, shortcuts, and optional account-based todo synchronization.</p>
+  <h2>Data stored locally</h2>
+  <p>Mino stores your todos, shortcuts, and appearance preferences in Chrome extension storage on your device. This data remains on your device unless you choose to sign in and use synchronization.</p>
+  <h2>Optional sign-in and synchronization</h2>
+  <p>If you sign in with Google, Mino receives your account identifier, email address, and display name from the configured Supabase authentication service. Mino sends your todo text, completion state, date, and update time to that Supabase project only to synchronize your todos across your own devices. Mino does not sell this data or use it for advertising.</p>
+  <h2>Third-party requests</h2>
+  <p>When you type in the search field, Mino requests search suggestions from Google. When you submit a search, Chrome opens Google Search or the URL you entered. Shortcut icons may be requested from Google's favicon service using the shortcut URL. These requests are made only to provide the visible feature you use.</p>
+  <h2>Data sharing and retention</h2>
+  <p>Mino does not share personal data with third parties except the services needed for the features above: Google for sign-in, search suggestions, search, and favicons; and Supabase for optional authentication and todo synchronization. Local data can be removed by uninstalling the extension. Synced data is retained by the configured Supabase project until it is deleted there or through its retention settings.</p>
+  <h2>Security</h2>
+  <p>Network requests use HTTPS. Mino uses a public Supabase publishable key in the extension and relies on Supabase row-level security so authenticated users can access only their own synced todos.</p>
+</body>
+</html>
