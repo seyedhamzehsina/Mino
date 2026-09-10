@@ -59,6 +59,12 @@ const AuthModule = {
       user: null
     };
     await this.fetchUser();
+    if (!this.session.user) {
+      this.session = null;
+      await StorageManager.set('authSession', null);
+      await DialogModule.notice({ title: 'Sign-in failed', message: 'We could not verify your account. Please try again.', kicker: 'Account' });
+      return true;
+    }
     await StorageManager.set('authSession', this.session);
     this.render();
     document.dispatchEvent(new Event('auth-session-changed'));
@@ -110,12 +116,12 @@ const AuthModule = {
       await DialogModule.notice({ title: 'Sync is unavailable', message: 'Account sync has not been configured yet.', kicker: 'Account' });
       return;
     }
-    if (!chrome.identity?.launchWebAuthFlow) {
+    if (!globalThis.chrome?.identity?.launchWebAuthFlow) {
       await DialogModule.notice({ title: 'Sign-in is unavailable', message: 'Reload the extension and try again.', kicker: 'Account' });
       return;
     }
 
-    const redirect = chrome.identity.getRedirectURL('supabase-auth');
+    const redirect = globalThis.chrome.identity.getRedirectURL('supabase-auth');
     const authorizeUrl = new URL(`${SyncConfig.SUPABASE_URL}/auth/v1/authorize`);
     authorizeUrl.searchParams.set('provider', 'google');
     authorizeUrl.searchParams.set('redirect_to', redirect);

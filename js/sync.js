@@ -2,11 +2,13 @@ const SyncModule = {
   lastSyncAt: null,
   tombstones: [], // deleted todo snapshots waiting to be sent
   syncing: false,
+  syncUserId: null,
 
   async init() {
     if (!SyncConfig.enabled) return;
     this.lastSyncAt = await StorageManager.get('lastSyncAt') || null;
     this.tombstones = await StorageManager.get('syncTombstones') || [];
+    this.syncUserId = await StorageManager.get('syncUserId') || null;
     document.addEventListener('todos-changed', () => this.push());
     document.addEventListener('auth-session-changed', () => this.syncAfterAuthentication());
     if (AuthModule.session) await this.syncAfterAuthentication();
@@ -35,6 +37,22 @@ const SyncModule = {
   },
 
   async syncAfterAuthentication() {
+    const userId = AuthModule.session?.user?.id;
+    if (!userId) return;
+    if (this.syncUserId && this.syncUserId !== userId) {
+      // Local data remains on this device, but pending changes from another
+      // account must never be uploaded into the newly signed-in account.
+      this.lastSyncAt = null;
+      this.tombstones = [];
+      Object.values(TodoModule.todosByDate).forEach(todos => {
+        (todos || []).forEach(todo => { delete todo.dirty; });
+      });
+      await TodoModule.save();
+      await StorageManager.set('lastSyncAt', null);
+      await StorageManager.set('syncTombstones', []);
+    }
+    this.syncUserId = userId;
+    await StorageManager.set('syncUserId', userId);
     await this.pull();
     await this.push();
   },
@@ -92,6 +110,7 @@ const SyncModule = {
   async pull() {
     if (!SyncConfig.enabled || !AuthModule.session || !AuthModule.session.user || this.syncing) return;
     this.syncing = true;
+    const pullStartedAt = new Date().toISOString();
     try {
       const uid = AuthModule.session.user.id;
       const q = new URLSearchParams({ user_id: `eq.${uid}`, select: '*', order: 'updated_at.asc' });
@@ -128,7 +147,9 @@ const SyncModule = {
         }
       });
 
-      this.lastSyncAt = new Date().toISOString();
+      // Keep the query start time, so a server update that happens while this
+      // request is in flight is included by the next incremental pull.
+      this.lastSyncAt = pullStartedAt;
       await StorageManager.set('lastSyncAt', this.lastSyncAt);
       if (changed) {
         await TodoModule.save();

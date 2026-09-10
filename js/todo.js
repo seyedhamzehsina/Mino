@@ -88,7 +88,7 @@ const TodoModule = {
     this.todos = this.todos.filter(t => t.id !== id);
     await this.save();
     this.render();
-    if (typeof SyncModule !== 'undefined') SyncModule.queueDelete(todo, this.selectedDate);
+    if (typeof SyncModule !== 'undefined') await SyncModule.queueDelete(todo, this.selectedDate);
     this.notifyCalendar();
   },
   async clearAll() {
@@ -105,7 +105,9 @@ const TodoModule = {
     this.todos = [];
     await this.save();
     this.render();
-    if (typeof SyncModule !== 'undefined') removed.forEach(todo => SyncModule.queueDelete(todo, this.selectedDate));
+    if (typeof SyncModule !== 'undefined') {
+      await Promise.all(removed.map(todo => SyncModule.queueDelete(todo, this.selectedDate)));
+    }
     this.notifyCalendar();
   },
   hasOpenTodos(key) {

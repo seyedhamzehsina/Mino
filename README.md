@@ -24,6 +24,8 @@ Mino is a minimalist Chrome new-tab extension with a clock, calendar, daily todo
 4. Zip the contents of this folder (not the containing folder), excluding `.git`, `release`, and local files.
 5. Upload the ZIP to the Chrome Web Store Developer Dashboard and complete its Privacy, Distribution, and Test Instructions sections.
 
+The ready-to-paste Store copy, permission explanations, and graphic-asset checklist are in [`STORE_LISTING.md`](STORE_LISTING.md).
+
 ## Data handling
 
 Without sign-in, Mino stores settings, shortcuts, and todos only in Chrome local extension storage. With sign-in, only todos are sent to the configured Supabase project under the authenticated user's account. See [`privacy-policy.html`](privacy-policy.html) for the public policy text.
