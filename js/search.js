@@ -4,6 +4,7 @@ const SearchModule = {
   dropdown: null,
   input: null,
   abortController: null,
+  suggestionTimer: null,
   init() {
     this.input = document.getElementById('search-input');
     this.dropdown = document.createElement('div');
@@ -19,7 +20,10 @@ const SearchModule = {
       this.search(this.input.value.trim());
     });
 
-    this.input.addEventListener('input', () => this.fetchSuggestions());
+    this.input.addEventListener('input', () => {
+      clearTimeout(this.suggestionTimer);
+      this.suggestionTimer = setTimeout(() => this.fetchSuggestions(), 120);
+    });
     this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
     this.input.addEventListener('blur', () => setTimeout(() => this.hide(), 150));
   },

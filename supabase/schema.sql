@@ -9,6 +9,9 @@ create table if not exists public.profiles (
   created_at timestamptz not null default now()
 );
 
+-- Safe to run again if profiles already exists from an earlier Mino release.
+alter table public.profiles add column if not exists onboarding_completed boolean not null default false;
+
 -- 2) Todos
 create table if not exists public.todos (
   id uuid primary key,

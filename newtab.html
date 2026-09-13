@@ -10,9 +10,12 @@
 <body>
   <main class="container">
     <header class="top-bar">
-      <img src="assets/logo.svg" alt="Mino" class="brand-logo" title="Mino">
+      <svg class="brand-logo" viewBox="0 0 64 64" fill="none" role="img" aria-label="Mino" title="Mino">
+        <path class="brand-stroke" d="M11 50V20C11 15 14 12 18 12C22 12 25 14 27 18L32 29L37 18C39 14 42 12 46 12C50 12 53 15 53 20V50"/>
+        <circle class="brand-accent" cx="32" cy="41" r="3.5"/>
+      </svg>
       <div class="top-actions">
-        <button id="auth-toggle" class="auth-toggle" title="Sign in with Google" hidden>Sign in</button>
+        <button id="auth-toggle" class="auth-toggle" title="Sign in to your Mino account" hidden>Sign in</button>
         <button id="auth-signout" class="auth-signout" type="button" hidden>Sign out</button>
         <button id="settings-toggle" class="settings-toggle" title="Settings" aria-label="Settings">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -28,13 +31,14 @@
 
     <section class="middle-row">
       <details class="card collapsible-card todo-card" id="todo-panel">
-        <summary class="collapsible-summary"><span>Todo list</span><span class="panel-chevron" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="m6.5 8 3.5 4 3.5-4"/></svg></span></summary>
+        <summary class="collapsible-summary"><span class="todo-summary-title">Todo list <span id="todo-reminder" class="todo-reminder" hidden aria-live="polite"><span class="todo-reminder-orb" aria-hidden="true"></span><span id="todo-reminder-count" class="todo-reminder-count">0</span><span class="todo-reminder-label">open</span></span></span><span class="panel-chevron" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="m6.5 8 3.5 4 3.5-4"/></svg></span></summary>
         <div class="collapsible-content">
           <div class="collapsible-inner">
           <div class="card-header todo-header">
           <button id="todo-prev-day" class="day-nav" title="Previous day">‹</button>
           <button id="todo-today-btn" class="todo-date-label" title="Back to today"><span id="todo-date-label">Today</span></button>
           <button id="todo-next-day" class="day-nav" title="Next day">›</button>
+          <button id="todo-next-open" class="todo-next-open" type="button" title="Next day with open tasks" aria-label="Next day with open tasks"><span>Next open</span><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M4 10h11"/><path d="m11 6 4 4-4 4"/></svg></button>
           <button id="todo-clear" class="todo-clear-btn" title="Clear all tasks for this day">Clear all</button>
         </div>
           <ul id="todo-list" class="todo-list"></ul>
@@ -69,6 +73,65 @@
 
   <footer class="slogan">Everything essential. Nothing extra.</footer>
 
+  <dialog id="onboarding-dialog" class="onboarding-dialog" aria-labelledby="onboarding-title">
+    <section class="onboarding-card">
+      <div class="onboarding-progress" aria-hidden="true"><span></span><span></span><span></span></div>
+      <section class="onboarding-step" data-onboarding-step="welcome">
+        <svg class="onboarding-logo" viewBox="0 0 64 64" fill="none" aria-hidden="true"><path class="brand-stroke" d="M11 50V20C11 15 14 12 18 12C22 12 25 14 27 18L32 29L37 18C39 14 42 12 46 12C50 12 53 15 53 20V50"/><circle class="brand-accent" cx="32" cy="41" r="3.5"/></svg>
+        <p class="onboarding-kicker">Welcome to Mino</p>
+        <h1 id="onboarding-title">Everything essential.<br>Nothing extra.</h1>
+        <p>A calm, focused space for every new tab.</p>
+        <button class="dialog-button dialog-button-primary onboarding-next" type="button">Get started</button>
+      </section>
+      <section class="onboarding-step" data-onboarding-step="essentials" hidden>
+        <p class="onboarding-kicker">Your everyday essentials</p>
+        <h1>Built around your day.</h1>
+        <p>Everything is there when you need it, and out of your way when you don’t.</p>
+        <div class="onboarding-feature-story" aria-label="Mino features">
+          <div><span class="feature-glyph">⌕</span><strong>Search</strong><small>Find what matters</small></div>
+          <div><span class="feature-glyph">↗</span><strong>Shortcuts</strong><small>Keep the familiar close</small></div>
+          <div><span class="feature-glyph">◫</span><strong>Calendar</strong><small>See your day at a glance</small></div>
+          <div><span class="feature-glyph">✓</span><strong>Todo</strong><small>Make room to focus</small></div>
+        </div>
+        <button class="dialog-button dialog-button-primary onboarding-next" type="button">Continue</button>
+      </section>
+      <section class="onboarding-step" data-onboarding-step="account" hidden>
+        <p class="onboarding-kicker">Your private workspace</p>
+        <h1>Create your Mino account</h1>
+        <p>Use your Google account to securely save your workspace and keep it with you across devices.</p>
+        <button class="google-signin-button" id="onboarding-google-signin" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.35 12.23c0-.71-.06-1.39-.18-2.05H12v3.88h5.24a4.48 4.48 0 0 1-1.94 2.94v2.51h3.15c1.84-1.69 2.9-4.18 2.9-7.28Z"/><path fill="#34A853" d="M12 21.75c2.63 0 4.84-.87 6.45-2.24l-3.15-2.51c-.87.59-1.99.94-3.3.94-2.54 0-4.7-1.72-5.47-4.03H3.28v2.59A9.75 9.75 0 0 0 12 21.75Z"/><path fill="#FBBC05" d="M6.53 13.91A5.87 5.87 0 0 1 6.22 12c0-.67.12-1.32.31-1.91V7.5H3.28A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.05 1.03 4.5l3.25-2.59Z"/><path fill="#EA4335" d="M12 6.06c1.43 0 2.72.49 3.73 1.46l2.8-2.8C16.83 3.14 14.63 2.25 12 2.25A9.75 9.75 0 0 0 3.28 7.5l3.25 2.59C7.3 7.78 9.46 6.06 12 6.06Z"/></svg>Continue with Google</button>
+        <p class="onboarding-help">Optional. We use your verified Google email only to secure and sync your Mino workspace.</p>
+        <p class="onboarding-error" id="onboarding-account-error" role="alert"></p>
+        <button class="onboarding-text-button onboarding-skip" id="onboarding-skip" type="button">Skip for now</button>
+      </section>
+    </section>
+  </dialog>
+
+  <dialog id="name-prompt-dialog" class="account-dialog" aria-labelledby="name-prompt-title">
+    <section class="account-dialog-card">
+      <p class="onboarding-kicker">A little personalization</p>
+      <h2 id="name-prompt-title">What should we call you?</h2>
+      <p class="account-dialog-copy">We have kept Mino quiet while you got familiar with it. Add a name whenever you are ready and we will make your greeting feel a little more personal.</p>
+      <form id="name-prompt-form" novalidate>
+        <label class="onboarding-label" for="name-prompt-input">Display name <span>(optional)</span></label>
+        <input id="name-prompt-input" type="text" autocomplete="name" maxlength="30" placeholder="e.g. Sina">
+        <p class="onboarding-error" id="name-prompt-error" role="alert"></p>
+        <div class="name-prompt-actions"><button class="onboarding-text-button" id="name-prompt-later" type="button">Maybe later</button><button class="dialog-button dialog-button-primary" type="submit">Save name</button></div>
+      </form>
+    </section>
+  </dialog>
+
+  <dialog id="account-dialog" class="account-dialog" aria-labelledby="account-dialog-title">
+    <section class="account-dialog-card">
+      <p class="onboarding-kicker">Your Mino workspace</p>
+      <h2 id="account-dialog-title">Sign in to sync your workspace</h2>
+      <p class="account-dialog-copy">Keep your shortcuts, tasks and preferences available across your devices.</p>
+      <button class="google-signin-button" id="account-google-signin" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.35 12.23c0-.71-.06-1.39-.18-2.05H12v3.88h5.24a4.48 4.48 0 0 1-1.94 2.94v2.51h3.15c1.84-1.69 2.9-4.18 2.9-7.28Z"/><path fill="#34A853" d="M12 21.75c2.63 0 4.84-.87 6.45-2.24l-3.15-2.51c-.87.59-1.99.94-3.3.94-2.54 0-4.7-1.72-5.47-4.03H3.28v2.59A9.75 9.75 0 0 0 12 21.75Z"/><path fill="#FBBC05" d="M6.53 13.91A5.87 5.87 0 0 1 6.22 12c0-.67.12-1.32.31-1.91V7.5H3.28A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.05 1.03 4.5l3.25-2.59Z"/><path fill="#EA4335" d="M12 6.06c1.43 0 2.72.49 3.73 1.46l2.8-2.8C16.83 3.14 14.63 2.25 12 2.25A9.75 9.75 0 0 0 3.28 7.5l3.25 2.59C7.3 7.78 9.46 6.06 12 6.06Z"/></svg>Continue with Google</button>
+      <button class="onboarding-text-button account-dialog-skip" id="account-dialog-skip" type="button">Not now</button>
+      <p class="onboarding-error" id="account-dialog-error" role="alert"></p>
+    </section>
+  </dialog>
+
   <dialog id="app-dialog" class="app-dialog" aria-labelledby="app-dialog-title" aria-describedby="app-dialog-message">
     <section class="app-dialog-card">
       <button id="app-dialog-close" class="app-dialog-close" type="button" aria-label="Close">&times;</button>
@@ -79,6 +142,30 @@
         <button id="app-dialog-cancel" class="dialog-button dialog-button-secondary" type="button">Cancel</button>
         <button id="app-dialog-confirm" class="dialog-button dialog-button-primary" type="button">Confirm</button>
       </div>
+    </section>
+  </dialog>
+
+  <dialog id="shortcut-dialog" class="shortcut-dialog" aria-labelledby="shortcut-dialog-title">
+    <section class="shortcut-dialog-card">
+      <button id="shortcut-dialog-close" class="app-dialog-close" type="button" aria-label="Close">&times;</button>
+      <p class="app-dialog-kicker">Shortcuts</p>
+      <h2 id="shortcut-dialog-title">Add a shortcut</h2>
+      <form id="shortcut-dialog-form" novalidate>
+        <section data-shortcut-step="url">
+          <p class="shortcut-dialog-copy">Keep a favorite website close to your everyday workspace.</p>
+          <label class="shortcut-dialog-label" for="shortcut-url-input">Website address</label>
+          <input id="shortcut-url-input" class="shortcut-dialog-input" type="text" placeholder="https://example.com" autocomplete="url">
+          <p id="shortcut-url-error" class="shortcut-dialog-error" role="alert"></p>
+          <div class="shortcut-dialog-actions"><button id="shortcut-dialog-cancel-url" class="dialog-button dialog-button-secondary" type="button">Cancel</button><button class="dialog-button dialog-button-primary" type="submit">Continue</button></div>
+        </section>
+        <section data-shortcut-step="name" hidden>
+          <p class="shortcut-dialog-copy">Choose the short label you want to see under the icon.</p>
+          <label class="shortcut-dialog-label" for="shortcut-name-input">Shortcut name</label>
+          <input id="shortcut-name-input" class="shortcut-dialog-input" type="text" placeholder="e.g. Notion" maxlength="30" autocomplete="off">
+          <p id="shortcut-name-error" class="shortcut-dialog-error" role="alert"></p>
+          <div class="shortcut-dialog-actions"><button id="shortcut-dialog-back" class="dialog-button dialog-button-secondary" type="button">Back</button><button class="dialog-button dialog-button-primary" type="submit">Add shortcut</button></div>
+        </section>
+      </form>
     </section>
   </dialog>
 
@@ -103,10 +190,15 @@
         <span>Background</span>
         <span class="gradient-options" id="gradient-options"></span>
       </label>
-      <label class="setting-row setting-row-stack">
-        <span>Background image URL</span>
-        <input type="text" id="setting-bg-url" placeholder="https://example.com/photo.jpg">
-      </label>
+      <div class="setting-row setting-row-stack">
+        <label for="setting-bg-url">Background image URL</label>
+        <div class="setting-image-url-control">
+          <input type="text" id="setting-bg-url" placeholder="https://example.com/photo.jpg">
+          <button type="button" id="setting-bg-apply" class="setting-icon-button" aria-label="Apply background image" title="Apply background image">✓</button>
+          <button type="button" id="setting-bg-clear" class="setting-icon-button setting-icon-button-danger" aria-label="Remove background image" title="Remove background image">×</button>
+        </div>
+        <small id="setting-bg-status" class="setting-help" aria-live="polite"></small>
+      </div>
       <label class="setting-row">
         <span>Glass opacity</span>
         <input type="range" id="setting-glass-opacity" min="35" max="85" step="1">
@@ -131,7 +223,7 @@
         <input type="checkbox" id="setting-seconds">
       </label>
       <label class="setting-row">
-        <span>Your name</span>
+        <span>Display name</span>
         <input type="text" id="setting-name" placeholder="e.g. Alex" maxlength="30">
       </label>
     </div>
@@ -148,6 +240,7 @@
   <script src="js/search.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/sync.js"></script>
+  <script src="js/onboarding.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

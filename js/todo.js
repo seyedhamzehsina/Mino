@@ -29,8 +29,11 @@ const TodoModule = {
     document.getElementById('todo-clear').addEventListener('click', () => this.clearAll());
     document.getElementById('todo-prev-day').addEventListener('click', () => this.shiftDay(-1));
     document.getElementById('todo-next-day').addEventListener('click', () => this.shiftDay(1));
+    document.getElementById('todo-next-open').addEventListener('click', () => this.goToNextOpenDay());
     document.getElementById('todo-today-btn').addEventListener('click', () => this.selectDate(this.todayKey()));
     document.addEventListener('date-selected', (e) => this.selectDate(e.detail));
+    document.addEventListener('day-changed', () => this.updateCollapsedReminder());
+    document.getElementById('todo-panel').addEventListener('toggle', () => this.updateCollapsedReminder());
   },
   todayKey() {
     const now = new Date();
@@ -77,14 +80,6 @@ const TodoModule = {
   async deleteTodo(id) {
     const todo = this.todos.find(t => t.id === id);
     if (!todo) return;
-    const confirmed = await DialogModule.confirm({
-      title: 'Delete this task?',
-      message: `“${todo.text}” will be removed from this day.`,
-      confirmLabel: 'Delete task',
-      destructive: true,
-      kicker: 'Todo list'
-    });
-    if (!confirmed) return;
     this.todos = this.todos.filter(t => t.id !== id);
     await this.save();
     this.render();
@@ -113,6 +108,28 @@ const TodoModule = {
   hasOpenTodos(key) {
     const todos = this.todosByDate[key];
     return Array.isArray(todos) && todos.some(t => !t.done);
+  },
+  openTodoDates() {
+    return Object.keys(this.todosByDate)
+      .filter(key => this.hasOpenTodos(key))
+      .sort();
+  },
+  goToNextOpenDay() {
+    const dates = this.openTodoDates();
+    if (!dates.length) return;
+    const next = dates.find(key => key > this.selectedDate) || dates[0];
+    this.selectDate(next);
+  },
+  updateOpenDayControl() {
+    const button = document.getElementById('todo-next-open');
+    if (!button) return;
+    const dates = this.openTodoDates();
+    button.disabled = dates.length === 0;
+    const description = dates.length
+      ? `Go to the next of ${dates.length} day${dates.length === 1 ? '' : 's'} with open tasks`
+      : 'No days with open tasks';
+    button.title = description;
+    button.setAttribute('aria-label', description);
   },
   notifyCalendar() {
     document.dispatchEvent(new Event('todos-changed'));
@@ -196,6 +213,19 @@ const TodoModule = {
       empty.textContent = 'No tasks for this day yet.';
       list.appendChild(empty);
     }
+    this.updateCollapsedReminder();
+    this.updateOpenDayControl();
+  },
+  updateCollapsedReminder() {
+    const reminder = document.getElementById('todo-reminder');
+    const count = document.getElementById('todo-reminder-count');
+    if (!reminder) return;
+    const remaining = Object.values(this.todosByDate)
+      .reduce((total, todos) => total + (todos || []).filter(todo => !todo.done).length, 0);
+    reminder.hidden = remaining === 0;
+    reminder.title = `${remaining} task${remaining === 1 ? '' : 's'} still open`;
+    reminder.setAttribute('aria-label', reminder.title);
+    if (count) count.textContent = String(remaining);
   },
   isRtlText(text) {
     return /[\u0590-\u08ff]/.test(text);

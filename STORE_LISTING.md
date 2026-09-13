@@ -7,7 +7,7 @@ This file is the ready-to-paste source for the Chrome Web Store Developer Dashbo
 - **Name:** Mino — Minimal New Tab
 - **Category:** Productivity
 - **Primary language:** English
-- **Short description:** A calm, customizable new tab with a clock, daily todos, calendar, shortcuts, and optional private sync.
+- **Short description:** A calm, customizable new tab with a clock, daily todos, calendar, shortcuts, and private workspace sync.
 - **Official URL:** https://github.com/seyedhamzehsina/Mino
 - **Support URL:** https://github.com/seyedhamzehsina/Mino/issues
 - **Privacy policy URL:** `[Publish privacy-policy.html over HTTPS, then paste its public URL here.]`
@@ -26,9 +26,9 @@ Features:
 - Search the web or open a URL directly from the new-tab page.
 - Add and remove shortcuts for the sites you use most.
 - Personalize the accent color, light or dark mode, liquid-glass appearance, clock settings, and background.
-- Optionally sign in with Google to synchronize todos through the configured Supabase project.
+- Sign in with Google to create a private workspace and synchronize todos, shortcuts, clock preferences, and appearance settings through the configured Supabase project.
 
-Mino is designed to be quiet, readable, and personal. It works fully locally without an account; sign-in is only needed for optional todo sync.
+Mino is designed to be quiet, readable, and personal. Setup uses Google sign-in to create a private workspace that stays available across devices.
 
 ## Privacy practices submission
 
@@ -36,8 +36,8 @@ Use the actual behavior of version 1.1.1 when completing the Privacy practices t
 
 | Data type | Handled? | Purpose | Stored/transmitted |
 | --- | --- | --- | --- |
-| Personally identifiable information | Yes, only after optional sign-in: email address, account identifier, display name | Authenticate the account and show signed-in state | Received through Supabase authentication; retained locally for the session |
-| User-generated content | Yes: todo text, completion state, date, and update time | Provide the todo feature and optional multi-device sync | Stored in Chrome extension storage; sent to Supabase only when optional sync is enabled |
+| Personally identifiable information | Yes: verified Google email address, account identifier, display name | Authenticate the account and show signed-in state | Received through Supabase authentication; retained locally for the session |
+| User-generated content | Yes: todo text, completion state, date, shortcuts, clock preferences, and appearance settings | Provide the workspace and multi-device sync | Stored in Chrome extension storage and synchronized to Supabase for the authenticated account |
 | Website URLs | Yes: user-entered shortcut URLs | Open user-created shortcuts and request their favicons | Stored locally; favicon request is sent to Google only when a shortcut is displayed |
 | Search queries | Yes, only when typed into search | Show search suggestions and perform the user-requested search | Suggestions are requested from Google; submitted searches open Google Search |
 
@@ -45,10 +45,10 @@ For the dashboard declarations, state that Mino does **not** sell user data, use
 
 ## Permission justification
 
-- `storage`: saves todos, settings, shortcut details, and the optional account session in Chrome extension storage.
-- `identity`: opens the user-initiated Google sign-in flow for optional todo synchronization.
+- `storage`: saves todos, settings, shortcut details, and the account session in Chrome extension storage.
+- `identity`: opens the user-initiated Google sign-in flow for workspace authentication.
 - `https://suggestqueries.google.com/*`: retrieves search suggestions only while the user types in Mino’s search field.
-- `https://*.supabase.co/*`: authenticates the optional account and synchronizes the user’s todos with the configured Supabase project.
+- `https://*.supabase.co/*`: authenticates the user with Google and synchronizes their private workspace with the configured Supabase project.
 
 ## Graphic assets
 

@@ -9,20 +9,20 @@
 <body>
   <h1>Mino Privacy Policy</h1>
   <p><small>Last updated: September 9, 2026</small></p>
-  <p>Mino is a Chrome new-tab extension. It provides a clock, calendar, daily todo list, web search, shortcuts, and optional account-based todo synchronization.</p>
+  <p>Mino is a Chrome new-tab extension. It provides a clock, calendar, daily todo list, web search, shortcuts, and account-based workspace synchronization.</p>
   <h2>Data stored locally</h2>
-  <p>Mino stores your todos, shortcuts, and appearance preferences in Chrome extension storage on your device. This data remains on your device unless you choose to sign in and use synchronization.</p>
-  <h2>Optional sign-in and synchronization</h2>
-  <p>If you sign in with Google, Mino receives your account identifier, email address, and display name from the configured Supabase authentication service. Mino sends your todo text, completion state, date, and update time to that Supabase project only to synchronize your todos across your own devices. Mino does not sell this data or use it for advertising.</p>
+  <p>Mino stores a local working copy of your todos, shortcuts, and appearance preferences in Chrome extension storage on your device. These settings are synchronized to your private workspace after account setup.</p>
+  <h2>Account and synchronization</h2>
+  <p>During setup, Mino uses Google sign-in through the configured Supabase authentication service. Mino stores your account identifier, verified Google email address, and display name. It sends your todo text, completion state, dates, shortcuts, clock preferences, and appearance settings to that Supabase project so your workspace can be synchronized across your own devices. Mino does not sell this data or use it for advertising.</p>
   <h2>Third-party requests</h2>
   <p>When you type in the search field, Mino requests search suggestions from Google. When you submit a search, Chrome opens Google Search or the URL you entered. Shortcut icons may be requested from Google's favicon service using the shortcut URL. These requests are made only to provide the visible feature you use.</p>
   <h2>Data sharing and retention</h2>
-  <p>Mino does not share personal data with third parties except the services needed for the features above: Google for sign-in, search suggestions, search, and favicons; and Supabase for optional authentication and todo synchronization. Local data can be removed by uninstalling the extension. Synced data is retained by the configured Supabase project until it is deleted there or through its retention settings.</p>
+  <p>Mino does not share personal data with third parties except the services needed for the features above: Google for sign-in, search suggestions, search, and favicons; and Supabase for account authentication and workspace synchronization. Local data can be removed by uninstalling the extension. Synced data is retained by the configured Supabase project until it is deleted there or through its retention settings.</p>
   <h2>Security</h2>
-  <p>Network requests use HTTPS. Mino uses a public Supabase publishable key in the extension and relies on Supabase row-level security so authenticated users can access only their own synced todos.</p>
+  <p>Network requests use HTTPS. Mino uses a public Supabase publishable key in the extension and relies on Supabase row-level security so authenticated users can access only their own workspace data.</p>
   <h2>Google API Services User Data Policy</h2>
-  <p>Mino's use of information received from Google APIs will adhere to the <a href="https://developer.chrome.com/docs/webstore/program-policies/user-data/">Chrome Web Store User Data Policy</a>, including the Limited Use requirements. Google account information is used only to authenticate the optional sync feature and is not used for advertising, profiling, or any unrelated purpose.</p>
+  <p>Mino's use of information received from Google APIs adheres to the <a href="https://developer.chrome.com/docs/webstore/program-policies/user-data/">Chrome Web Store User Data Policy</a>, including the Limited Use requirements. Google account information is used only to authenticate and synchronize the Mino workspace, never for advertising or profiling.</p>
   <h2>Your choices and contact</h2>
-  <p>You can use Mino without signing in. You can remove local data by uninstalling the extension, and you can stop future synchronization by signing out. For privacy questions or data-deletion requests, open an issue at <a href="https://github.com/seyedhamzehsina/Mino/issues">github.com/seyedhamzehsina/Mino/issues</a>.</p>
+  <p>You can remove local data by uninstalling the extension. For privacy questions or account-data deletion requests, open an issue at <a href="https://github.com/seyedhamzehsina/Mino/issues">github.com/seyedhamzehsina/Mino/issues</a>.</p>
 </body>
 </html>

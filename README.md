@@ -1,6 +1,6 @@
 # Mino
 
-Mino is a minimalist Chrome new-tab extension with a clock, calendar, daily todos, web search, shortcuts, and optional Google sign-in with Supabase todo sync.
+Mino is a minimalist Chrome new-tab extension with a clock, calendar, daily todos, web search, shortcuts, and a private Supabase-backed workspace.
 
 ## Run locally
 
@@ -28,4 +28,4 @@ The ready-to-paste Store copy, permission explanations, and graphic-asset checkl
 
 ## Data handling
 
-Without sign-in, Mino stores settings, shortcuts, and todos only in Chrome local extension storage. With sign-in, only todos are sent to the configured Supabase project under the authenticated user's account. See [`privacy-policy.html`](privacy-policy.html) for the public policy text.
+Mino uses Google sign-in during first-run onboarding. The verified Google account stores the user's display name and synchronizes todos, shortcuts, clock preferences, and appearance settings under that user's Supabase account. See [`privacy-policy.html`](privacy-policy.html) for the public policy text.

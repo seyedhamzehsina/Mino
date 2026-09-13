@@ -1,7 +1,10 @@
 const SettingsModule = {
-  settings: { theme: 'light', accent: '#e07a5f', glassOpacity: 62, glassBlur: 18, background: { type: 'gradient', value: 'sunset' } },
-  contrastRequestId: 0,
+  settings: { theme: 'light', accent: '#e07a5f', glassOpacity: 62, glassBlur: 18, lastGradient: 'sunset', background: { type: 'gradient', value: 'sunset' } },
   contrastResizeTimer: null,
+  contrastImage: null,
+  contrastImageUrl: '',
+  contrastImageState: 'idle',
+  saveTimer: null,
   gradients: {
     sunset: {
       light: 'linear-gradient(135deg, #faf9f7 0%, #fdebd9 55%, #f6d5c3 100%)',
@@ -35,6 +38,10 @@ const SettingsModule = {
       if (saved.background && saved.background.value === 'darkViolet') saved.background.value = 'violet';
       this.settings = { ...this.settings, ...saved, background: { ...this.settings.background, ...(saved.background || {}) } };
     }
+    if (this.settings.background.type === 'gradient' && this.gradients[this.settings.background.value]) {
+      this.settings.lastGradient = this.settings.background.value;
+    }
+    if (!this.gradients[this.settings.lastGradient]) this.settings.lastGradient = 'sunset';
     this.apply();
     this.buildPanel();
     document.getElementById('settings-toggle').addEventListener('click', () => {
@@ -55,11 +62,16 @@ const SettingsModule = {
       this.contrastResizeTimer = setTimeout(() => {
         const bg = this.settings.background;
         if (bg.type === 'image' && bg.value) this.updateImageContrast(bg.value);
-      }, 120);
+      }, 180);
     });
   },
   async save() {
     await StorageManager.set('appearanceSettings', this.settings);
+    document.dispatchEvent(new Event('workspace-changed'));
+  },
+  scheduleSave(delay = 180) {
+    clearTimeout(this.saveTimer);
+    this.saveTimer = setTimeout(() => this.save(), delay);
   },
   apply() {
     document.body.classList.toggle('dark', this.settings.theme === 'dark');
@@ -75,7 +87,7 @@ const SettingsModule = {
       document.body.style.backgroundAttachment = 'fixed';
       this.resetAdaptiveContrast();
     } else if (bg.type === 'image' && bg.value) {
-      document.body.style.background = `url("${bg.value}") center / cover no-repeat fixed`;
+      this.setImageBackground(bg.value);
       this.updateImageContrast(bg.value);
     } else {
       document.body.style.background = '';
@@ -99,7 +111,7 @@ const SettingsModule = {
     opacityInput.value = this.settings.glassOpacity;
     opacityInput.addEventListener('input', (e) => {
       this.settings.glassOpacity = Number(e.target.value);
-      this.save();
+      this.scheduleSave();
       this.apply();
     });
 
@@ -107,7 +119,7 @@ const SettingsModule = {
     blurInput.value = this.settings.glassBlur;
     blurInput.addEventListener('input', (e) => {
       this.settings.glassBlur = Number(e.target.value);
-      this.save();
+      this.scheduleSave();
       this.apply();
     });
 
@@ -121,8 +133,9 @@ const SettingsModule = {
       ClockModule.updateSettings({ showSeconds: e.target.checked });
     });
 
-    document.getElementById('setting-name').value = ClockModule.settings.name;
-    document.getElementById('setting-name').addEventListener('input', (e) => {
+    const nameInput = document.getElementById('setting-name');
+    nameInput.value = ClockModule.settings.name;
+    nameInput.addEventListener('input', (e) => {
       ClockModule.updateSettings({ name: e.target.value.trim() });
     });
 
@@ -159,7 +172,9 @@ const SettingsModule = {
       lavender: 'Lavender', slate: 'Slate', violet: 'Violet'
     };
     const isDark = this.settings.theme === 'dark';
-    Object.keys(this.gradients).forEach(key => {
+    // Keep the appearance panel compact: five curated options fit on one row.
+    // Violet remains supported for existing saved preferences.
+    Object.keys(this.gradients).filter(key => key !== 'violet').forEach(key => {
       const btn = document.createElement('button');
       btn.className = 'gradient-option';
       if (this.settings.background.type === 'gradient' && this.settings.background.value === key) {
@@ -170,26 +185,64 @@ const SettingsModule = {
       btn.dataset.gradient = key;
       btn.addEventListener('click', () => {
         this.settings.background = { type: 'gradient', value: key };
+        this.settings.lastGradient = key;
         this.save();
         this.apply();
         this.syncBackgroundSelection();
         document.getElementById('setting-bg-url').value = '';
+        document.getElementById('setting-bg-status').textContent = '';
+        document.getElementById('setting-bg-apply').classList.remove('is-active');
       });
       gradientContainer.appendChild(btn);
     });
 
     const urlInput = document.getElementById('setting-bg-url');
+    const applyButton = document.getElementById('setting-bg-apply');
+    const clearButton = document.getElementById('setting-bg-clear');
+    const setImageButtonState = (active) => {
+      applyButton.classList.toggle('is-active', active);
+      applyButton.setAttribute('aria-label', active ? 'Background image active' : 'Apply background image');
+      applyButton.title = active ? 'Background image active' : 'Apply background image';
+    };
     if (this.settings.background.type === 'image') urlInput.value = this.settings.background.value;
-    urlInput.addEventListener('change', () => {
+    setImageButtonState(this.settings.background.type === 'image' && !!this.settings.background.value);
+    const applyUrl = () => {
       const url = urlInput.value.trim();
       if (!url) {
-        this.settings.background = { type: 'gradient', value: 'sunset' };
+        this.settings.background = { type: 'gradient', value: this.settings.lastGradient };
+        this.save();
+        this.apply();
+        this.syncBackgroundSelection();
+        document.getElementById('setting-bg-status').textContent = '';
+        setImageButtonState(false);
       } else {
+        const status = document.getElementById('setting-bg-status');
+        status.textContent = 'Loading image…';
+        // Apply immediately; some Unsplash CDN responses can be used by CSS
+        // even when an extension-side preload is blocked by CORS.
         this.settings.background = { type: 'image', value: url };
+        this.save();
+        this.apply();
+        this.syncBackgroundSelection();
+        const image = new Image();
+        image.onload = () => {
+          status.textContent = 'Image background active';
+          setImageButtonState(true);
+        };
+        image.onerror = () => {
+          status.textContent = 'Could not load this image. Use a direct image URL.';
+          setImageButtonState(false);
+        };
+        image.src = url;
       }
-      this.save();
-      this.apply();
-      this.syncBackgroundSelection();
+    };
+    urlInput.addEventListener('change', applyUrl);
+    urlInput.addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); applyUrl(); } });
+    applyButton.addEventListener('click', applyUrl);
+    clearButton.addEventListener('click', () => {
+      urlInput.value = '';
+      applyUrl();
+      urlInput.focus();
     });
   },
   refreshGradientSwatches() {
@@ -207,14 +260,22 @@ const SettingsModule = {
       );
     });
   },
+  setImageBackground(url) {
+    const safeUrl = url.replace(/["\\]/g, '\\$&');
+    // Clear any previous gradient shorthand before setting the image. Keeping
+    // the old shorthand can make Chromium retain the gradient in some states.
+    document.body.style.background = 'none';
+    document.body.style.backgroundImage = `url("${safeUrl}")`;
+    document.body.style.backgroundPosition = 'center';
+    document.body.style.backgroundSize = 'cover';
+    document.body.style.backgroundRepeat = 'no-repeat';
+    document.body.style.backgroundAttachment = 'fixed';
+  },
   updateImageContrast(url) {
-    const requestId = ++this.contrastRequestId;
-    const image = new Image();
-    image.crossOrigin = 'anonymous';
-    image.referrerPolicy = 'no-referrer';
-    image.onload = () => {
-      if (requestId !== this.contrastRequestId) return;
+    const applyContrast = (image) => {
+      if (this.settings.background.type !== 'image' || this.settings.background.value !== url) return;
       requestAnimationFrame(() => {
+        if (this.settings.background.type !== 'image' || this.settings.background.value !== url) return;
         try {
           this.applyAdaptiveContrast(document.querySelector('.clock-section'), this.sampleLuminance(image, document.querySelector('.clock-section')));
           this.applyAdaptiveContrast(document.querySelector('.slogan'), this.sampleLuminance(image, document.querySelector('.slogan')));
@@ -223,8 +284,30 @@ const SettingsModule = {
         }
       });
     };
+
+    // Resizing must never download the same image repeatedly. Reuse the
+    // already decoded image and only resample its tiny 32x32 regions.
+    if (this.contrastImageUrl === url) {
+      if (this.contrastImageState === 'ready' && this.contrastImage) applyContrast(this.contrastImage);
+      else if (this.contrastImageState === 'failed') this.applyContrastFallback();
+      return;
+    }
+
+    const image = new Image();
+    this.contrastImage = image;
+    this.contrastImageUrl = url;
+    this.contrastImageState = 'loading';
+    image.crossOrigin = 'anonymous';
+    image.referrerPolicy = 'no-referrer';
+    image.onload = () => {
+      if (this.contrastImage !== image || this.contrastImageUrl !== url) return;
+      this.contrastImageState = 'ready';
+      applyContrast(image);
+    };
     image.onerror = () => {
-      if (requestId === this.contrastRequestId) this.applyContrastFallback();
+      if (this.contrastImage !== image || this.contrastImageUrl !== url) return;
+      this.contrastImageState = 'failed';
+      this.applyContrastFallback();
     };
     image.src = url;
   },
@@ -273,7 +356,6 @@ const SettingsModule = {
     });
   },
   resetAdaptiveContrast() {
-    this.contrastRequestId += 1;
     document.querySelectorAll('.clock-section, .slogan').forEach(element => {
       element.classList.remove('adaptive-dark', 'adaptive-light');
     });

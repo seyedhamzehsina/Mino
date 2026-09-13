@@ -8,13 +8,14 @@
     "48": "assets/icons/icon-48.png",
     "128": "assets/icons/icon-128.png"
   },
-  "permissions": [
-    "storage",
-    "identity"
-  ],
+  "permissions": ["storage", "identity"],
   "host_permissions": [
     "https://suggestqueries.google.com/*",
-    "https://*.supabase.co/*"
+    "https://*.supabase.co/*",
+    "https://images.unsplash.com/*",
+    "https://plus.unsplash.com/*",
+    "https://source.unsplash.com/*",
+    "https://unsplash.com/*"
   ],
   "chrome_url_overrides": {
     "newtab": "newtab.html"

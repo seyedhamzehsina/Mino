@@ -1,6 +1,7 @@
 const ClockModule = {
   settings: { clock24: true, showSeconds: false, name: '' },
   timer: null,
+  lastDayKey: null,
   async init() {
     const saved = await StorageManager.get('clockSettings');
     if (saved) this.settings = { ...this.settings, ...saved };
@@ -11,9 +12,13 @@ const ClockModule = {
     this.settings = { ...this.settings, ...patch };
     StorageManager.set('clockSettings', this.settings);
     this.updateTime();
+    document.dispatchEvent(new Event('workspace-changed'));
   },
   updateTime() {
     const now = new Date();
+    const dayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+    if (this.lastDayKey && this.lastDayKey !== dayKey) document.dispatchEvent(new Event('day-changed'));
+    this.lastDayKey = dayKey;
     let hours = now.getHours();
     let suffix = '';
     if (!this.settings.clock24) {

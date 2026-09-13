@@ -62,7 +62,7 @@ body.dark .date {
 }
 
 .container {
-  max-width: 1280px;
+  max-width: 1330px;
   margin: 0 auto;
   padding: clamp(16px, 3.5vh, 48px) 24px clamp(12px, 2.5vh, 32px);
   display: flex;
@@ -133,17 +133,25 @@ body.dark .date {
   width: 32px;
   height: 32px;
   flex-shrink: 0;
+  color: var(--text);
   opacity: 0.9;
   transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.brand-stroke {
+  stroke: currentColor;
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.brand-accent {
+  fill: #ff7a59;
 }
 
 .brand-logo:hover {
   opacity: 1;
   transform: scale(1.05);
-}
-
-body.dark .brand-logo path {
-  stroke: #e8eaed;
 }
 
 /* ---------- Settings ---------- */
@@ -191,9 +199,10 @@ body.dark .brand-logo path {
 }
 
 .auth-toggle.signed-in {
-  width: 38px;
+  width: 34px;
+  height: 34px;
   padding: 0;
-  font-size: 15px;
+  font-size: 14px;
   border-radius: 50%;
   background: var(--accent);
   border-color: var(--accent);
@@ -309,11 +318,18 @@ body.dark .brand-logo path {
 
 .search-icon {
   position: absolute;
+  z-index: 1;
   left: 16px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
   pointer-events: none;
+  transition: color 180ms ease, transform 180ms ease;
+}
+
+.search-form:focus-within .search-icon {
+  color: var(--accent);
+  transform: translateY(-50%) scale(1.04);
 }
 
 .search-form input {
@@ -327,11 +343,29 @@ body.dark .brand-logo path {
   color: var(--text);
   outline: none;
   box-shadow: var(--shadow);
-  transition: border-color 0.15s ease;
+  transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms cubic-bezier(0.22, 1, 0.36, 1), background 220ms ease;
+}
+
+.search-form input:hover:not(:focus) {
+  border-color: color-mix(in srgb, var(--text-muted) 32%, var(--border));
+  box-shadow: 0 5px 18px color-mix(in srgb, var(--text) 8%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.34);
+  transform: translateY(-1px);
 }
 
 .search-form input:focus {
-  border-color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent), 0 10px 30px color-mix(in srgb, var(--accent) 13%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.38);
+  transform: translateY(-1px);
+}
+
+/* The search field uses its own soft focus treatment instead of the stronger
+   global outline used by compact controls. */
+.search-form input:focus-visible {
+  outline: none;
+}
+
+.search-form input {
+  transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms cubic-bezier(0.22, 1, 0.36, 1), background 220ms ease;
 }
 
 .search-form input::placeholder {
@@ -344,10 +378,13 @@ body.dark .brand-logo path {
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  background: var(--card-bg);
-  border: 1px solid var(--border);
+  background: var(--suggestion-bg, rgba(250, 252, 255, 0.96));
+  border: 1px solid var(--suggestion-border, rgba(148, 163, 184, 0.34));
   border-radius: 14px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+  -webkit-backdrop-filter: blur(var(--suggestion-blur, 8px));
+  backdrop-filter: blur(var(--suggestion-blur, 8px));
+  isolation: isolate;
   overflow: hidden;
   z-index: 15;
   padding: 4px;
@@ -377,7 +414,7 @@ body.dark .brand-logo path {
 /* ---------- Cards ---------- */
 .middle-row {
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(320px, 1.8fr) minmax(260px, 1fr);
+  grid-template-columns: minmax(260px, 1fr) minmax(500px, 530px) minmax(260px, 1fr);
   gap: clamp(36px, 4vw, 56px);
   align-items: stretch;
   flex: 0 0 auto;
@@ -641,6 +678,54 @@ body.dark .brand-logo path {
   color: var(--accent);
 }
 
+.todo-next-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: auto;
+  height: 26px;
+  margin-left: 2px;
+  padding: 0 7px 0 8px;
+  border: 1px solid color-mix(in srgb, var(--accent) 27%, var(--border));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 9%, var(--card-bg));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 3px 10px color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.015em;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.todo-next-open svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.todo-next-open:hover:not(:disabled),
+.todo-next-open:focus-visible:not(:disabled) {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 17%, var(--card-bg));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.68), 0 5px 14px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+.todo-next-open:disabled {
+  opacity: 0.36;
+  cursor: default;
+}
+
+.todo-card:not([open]) .todo-next-open {
+  display: none;
+}
+
 .todo-clear-btn {
   margin-left: auto;
   border: none;
@@ -837,17 +922,15 @@ body.dark .brand-logo path {
 .shortcuts-section {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
 
 .shortcuts-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
+  /* Let each shortcut participate in the same flex flow as the add button. */
+  display: contents;
 }
 
 .shortcut-item-wrapper {
@@ -898,6 +981,28 @@ body.dark .brand-logo path {
   opacity: 1;
 }
 
+.shortcut-edit {
+  position: absolute;
+  top: -6px;
+  right: 16px;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: var(--text-muted);
+  color: var(--card-bg);
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+  padding: 0;
+  z-index: 1;
+}
+
+.shortcut-item-wrapper:hover .shortcut-edit { opacity: 1; }
+.shortcut-edit:hover { background: var(--accent); }
+
 .shortcut-remove:hover {
   background: var(--accent);
 }
@@ -934,7 +1039,7 @@ body.dark .brand-logo path {
 .gradient-options {
   display: flex;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
 }
 
@@ -962,8 +1067,14 @@ body.dark .brand-logo path {
   gap: 6px;
 }
 
-.setting-row-stack span {
+.setting-row-stack > label {
   font-size: 13px;
+}
+
+.setting-help {
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 .setting-row-stack input[type="text"] {
@@ -971,9 +1082,62 @@ body.dark .brand-logo path {
   width: 100%;
 }
 
+.setting-image-url-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.setting-image-url-control input[type="text"] {
+  min-width: 0;
+  flex: 1;
+}
+
+.setting-icon-button {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--input-bg, var(--card-bg));
+  color: var(--text-muted);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 160ms ease, background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.setting-icon-button:hover,
+.setting-icon-button:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.setting-icon-button.is-active {
+  color: #238636;
+  border-color: #65b87a;
+  background: color-mix(in srgb, #65b87a 12%, var(--card-bg));
+}
+
+.setting-icon-button.is-active:hover,
+.setting-icon-button.is-active:focus-visible {
+  color: #1a7f37;
+  border-color: #238636;
+}
+
+.setting-icon-button-danger:hover,
+.setting-icon-button-danger:focus-visible {
+  color: #d9534f;
+  border-color: #d9534f;
+}
+
 /* ---------- Responsive: medium screens ---------- */
-@media (max-width: 1100px) {
+@media (max-width: 1180px) {
   .middle-row {
+    grid-template-columns: minmax(250px, 1fr) minmax(420px, 530px) minmax(250px, 1fr);
     gap: 20px;
   }
 }
@@ -1076,6 +1240,9 @@ body.dark .brand-logo path {
 :root {
   --glass-opacity: 0.62;
   --glass-blur: 18px;
+  --suggestion-bg: rgba(250, 252, 255, 0.96);
+  --suggestion-border: rgba(148, 163, 184, 0.34);
+  --suggestion-blur: 8px;
   --control-height: 48px;
   --input-bg: rgba(255, 255, 255, 0.54);
   --accent-glow: rgba(224, 122, 95, 0.24);
@@ -1112,6 +1279,8 @@ body.dark {
   --text-muted: #bdc8da;
   --border: rgba(194, 211, 239, 0.22);
   --shadow: 0 18px 40px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  --suggestion-bg: rgba(20, 29, 46, 0.97);
+  --suggestion-border: rgba(194, 211, 239, 0.24);
 }
 
 body.dark::before {
@@ -1250,7 +1419,7 @@ body.dark .card {
   height: 320px;
   min-height: 320px;
   max-height: 320px;
-  border-color: color-mix(in srgb, var(--accent) 46%, var(--border));
+  border-color: var(--border);
 }
 
 .collapsible-card::details-content {
@@ -1286,8 +1455,93 @@ body.dark .card {
   display: none;
 }
 
-.collapsible-summary:hover {
-  color: var(--accent);
+.todo-summary-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.todo-reminder {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 9px 0 7px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--border));
+  border-radius: 999px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 24%, rgba(255, 255, 255, 0.5)), color-mix(in srgb, var(--accent) 8%, var(--card-bg)));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62), 0 5px 14px color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-transform: none;
+  -webkit-backdrop-filter: blur(10px) saturate(135%);
+  backdrop-filter: blur(10px) saturate(135%);
+}
+
+.todo-reminder[hidden] {
+  display: none;
+}
+
+.todo-reminder::before {
+  position: absolute;
+  inset: 0 auto auto 14%;
+  width: 56%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: inherit;
+  content: '';
+  opacity: 0.78;
+}
+
+.todo-reminder-orb {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent), 0 0 10px var(--accent-glow);
+}
+
+.todo-reminder-count {
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+}
+
+.todo-reminder-label {
+  color: var(--text-muted);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.todo-card[open] .todo-reminder {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .todo-card:not([open]) .todo-reminder-orb {
+    animation: todo-reminder-breathe 2.8s ease-in-out infinite;
+  }
+}
+
+@keyframes todo-reminder-breathe {
+  0%, 100% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent), 0 0 8px var(--accent-glow); }
+  50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 8%, transparent), 0 0 15px var(--accent-glow); }
+}
+
+.collapsible-card:not([open]):hover {
+  border-color: color-mix(in srgb, var(--text-muted) 32%, var(--border));
+  box-shadow: 0 5px 18px color-mix(in srgb, var(--text) 8%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.34);
+  transform: translateY(-1px);
+}
+
+.collapsible-card:not([open]) .collapsible-summary:hover {
+  color: var(--text);
 }
 
 .collapsible-card[open] .collapsible-summary {
@@ -1446,7 +1700,25 @@ a:focus-visible {
   outline-offset: 3px;
 }
 
+.search-form input:focus-visible {
+  outline: none;
+}
+
 @media (max-width: 960px) {
+  .card,
+  .settings-panel,
+  .auth-toggle,
+  .auth-signout,
+  .settings-toggle,
+  .shortcut-item,
+  .add-shortcut-btn,
+  .search-form input,
+  .todo-form input,
+  .todo-form button {
+    -webkit-backdrop-filter: blur(min(12px, var(--glass-blur))) saturate(140%);
+    backdrop-filter: blur(min(12px, var(--glass-blur))) saturate(140%);
+  }
+
   .collapsible-card {
     min-height: var(--control-height);
   }
@@ -1690,8 +1962,254 @@ body.dark .app-dialog {
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
+/* ---------- First-run onboarding ---------- */
+.onboarding-dialog {
+  width: min(456px, calc(100vw - 32px));
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  color: var(--text);
+  background: var(--card-bg);
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+}
+
+.account-dialog {
+  width: min(420px, calc(100vw - 32px));
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  color: var(--text);
+  background: var(--card-bg);
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+}
+
+.account-dialog::backdrop { background: rgba(15, 23, 42, 0.52); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.account-dialog-card { position: relative; padding: 32px; }
+.account-dialog-card h2 { margin: 0; font-size: 24px; line-height: 1.2; letter-spacing: -0.03em; }
+.account-dialog-copy { margin-top: 12px; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+.account-dialog-card .google-signin-button { margin-top: 24px; }
+.name-prompt-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 16px; }
+.name-prompt-actions .onboarding-text-button { margin: 0; }
+.name-prompt-actions .dialog-button { margin-top: 0; }
+body.dark .account-dialog { box-shadow: 0 24px 64px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
+
+/* ---------- Add shortcut dialog ---------- */
+.shortcut-dialog {
+  width: min(430px, calc(100vw - 32px));
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  color: var(--text);
+  background: var(--card-bg);
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+}
+
+.shortcut-dialog::backdrop { background: rgba(15, 23, 42, 0.46); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
+.shortcut-dialog-card { position: relative; padding: 30px; }
+.shortcut-dialog-card h2 { margin: 0; font-size: 23px; line-height: 1.2; letter-spacing: -0.03em; }
+.shortcut-dialog-copy { margin-top: 10px; color: var(--text-muted); font-size: 14px; line-height: 1.55; }
+.shortcut-dialog-label { display: block; margin-top: 22px; margin-bottom: 8px; color: var(--text); font-size: 13px; font-weight: 600; }
+.shortcut-dialog-input { width: 100%; height: 44px; padding: 0 13px; border: 1px solid var(--border); border-radius: 12px; outline: none; background: var(--input-bg, var(--card-bg)); color: var(--text); font: inherit; transition: border-color 180ms ease, box-shadow 180ms ease; }
+.shortcut-dialog-input:focus-visible { border-color: var(--accent); outline: 1px solid var(--accent); outline-offset: 2px; }
+.shortcut-dialog-error { min-height: 19px; margin-top: 8px; color: #d9534f; font-size: 12px; }
+.shortcut-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+.shortcut-dialog-actions .dialog-button { margin-top: 0; }
+body.dark .shortcut-dialog { box-shadow: 0 24px 64px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
+
+.onboarding-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.52);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.onboarding-card { position: relative; padding: 32px; }
+
+.onboarding-progress {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 30px;
+}
+
+.onboarding-progress span {
+  width: 100%;
+  height: 3px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-muted) 20%, transparent);
+  transition: background 180ms ease;
+}
+
+.onboarding-progress span.is-active { background: var(--accent); }
+
+.onboarding-step { animation: onboarding-enter 220ms ease both; }
+
+.onboarding-logo {
+  width: 52px;
+  height: 52px;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+
+.onboarding-kicker {
+  margin-bottom: 8px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.onboarding-step h1 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.17;
+  letter-spacing: -0.035em;
+}
+
+.onboarding-step > p:not(.onboarding-kicker):not(.onboarding-help):not(.onboarding-error) {
+  margin-top: 12px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.onboarding-step .dialog-button {
+  width: 100%;
+  margin-top: 24px;
+}
+
+.onboarding-feature-story {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px 14px;
+  margin: 28px 0 2px;
+}
+
+.onboarding-feature-story > div {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 9px;
+  align-items: center;
+}
+
+.feature-glyph {
+  grid-row: span 2;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.onboarding-feature-story strong { font-size: 13px; font-weight: 650; }
+.onboarding-feature-story small { color: var(--text-muted); font-size: 11px; line-height: 1.3; }
+
+.onboarding-label {
+  display: block;
+  margin-top: 22px;
+  margin-bottom: 8px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.onboarding-step input {
+  width: 100%;
+  height: 44px;
+  padding: 0 13px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  outline: none;
+  background: var(--input-bg, var(--card-bg));
+  color: var(--text);
+  font: inherit;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.onboarding-step input:focus-visible {
+  border-color: var(--accent);
+  outline: 1px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.onboarding-help,
+.onboarding-error {
+  min-height: 20px;
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.onboarding-help { color: var(--text-muted); }
+.onboarding-error { color: #d9534f; }
+
+.onboarding-text-button {
+  display: block;
+  width: fit-content;
+  margin: 15px auto 0;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.onboarding-text-button:hover { color: var(--accent); }
+
+.google-signin-button {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  margin-top: 24px;
+  margin-inline: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card-bg);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+
+.google-signin-button:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 6px 18px var(--accent-glow); }
+.google-signin-button:disabled { cursor: wait; opacity: 0.72; transform: none; }
+.google-signin-button svg { width: 18px; height: 18px; }
+
+@keyframes onboarding-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+body.dark .onboarding-dialog {
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
 @media (max-width: 640px) {
   .app-dialog-card { padding: 24px 20px 20px; }
   .app-dialog-actions { flex-direction: column-reverse; }
   .dialog-button { width: 100%; }
+  .onboarding-card { padding: 26px 20px 22px; }
 }
