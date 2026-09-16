@@ -399,7 +399,7 @@ const QueensModule = {
     this.view.append(list, back);
     try {
       const query = new URLSearchParams({ day_key: `eq.${this.dateKey()}`, select: 'username,duration_seconds,moves', order: 'duration_seconds.asc,moves.asc', limit: '10' });
-      const response = await fetch(`${SyncConfig.SUPABASE_URL}/rest/v1/queens_scores?${query}`, { headers: AuthModule.authHeaders() });
+      const response = await fetch(`${SyncConfig.SUPABASE_URL}/rest/v1/queens_leaderboard?${query}`, { headers: AuthModule.authHeaders() });
       if (!response.ok) throw new Error();
       const scores = await response.json();
       if (!scores.length) {

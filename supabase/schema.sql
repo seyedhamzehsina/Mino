@@ -89,8 +89,9 @@ create index if not exists queens_scores_daily_rank_idx
 alter table public.queens_scores enable row level security;
 
 drop policy if exists "read Queens league" on public.queens_scores;
-create policy "read Queens league" on public.queens_scores
-  for select to authenticated using (true);
+drop policy if exists "read own Queens scores" on public.queens_scores;
+create policy "read own Queens scores" on public.queens_scores
+  for select to authenticated using (auth.uid() = user_id);
 
 drop policy if exists "write own Queens score" on public.queens_scores;
 create policy "write own Queens score" on public.queens_scores
@@ -99,3 +100,9 @@ create policy "write own Queens score" on public.queens_scores
 drop policy if exists "update own Queens score" on public.queens_scores;
 create policy "update own Queens score" on public.queens_scores
   for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Only these public leaderboard fields are visible to other league players.
+create or replace view public.queens_leaderboard as
+  select day_key, username, duration_seconds, moves
+  from public.queens_scores;
+grant select on public.queens_leaderboard to authenticated;
