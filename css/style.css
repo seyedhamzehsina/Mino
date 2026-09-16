@@ -682,7 +682,8 @@ body.dark .date {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  width: auto;
+  width: max-content;
+  min-width: 84px;
   height: 26px;
   margin-left: 2px;
   padding: 0 7px 0 8px;
@@ -694,7 +695,10 @@ body.dark .date {
   font-family: inherit;
   font-size: 10px;
   font-weight: 650;
+  line-height: 1;
   letter-spacing: 0.015em;
+  white-space: nowrap;
+  flex: 0 0 auto;
   cursor: pointer;
   transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
 }
@@ -702,6 +706,7 @@ body.dark .date {
 .todo-next-open svg {
   width: 13px;
   height: 13px;
+  flex: 0 0 auto;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.65;
@@ -751,11 +756,14 @@ body.dark .date {
   gap: 2px;
   text-align: center;
   font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  font-synthesis: none;
 }
 
 .day-name {
   color: var(--text-muted);
   font-weight: 500;
+  line-height: 1.2;
   padding: 7px 0;
 }
 
@@ -764,8 +772,15 @@ body.dark .date {
   padding: 7px 0;
   border-radius: 8px;
   color: var(--text);
+  font-weight: 400;
+  line-height: 1.2;
   cursor: pointer;
   transition: background 0.12s ease;
+}
+
+#calendar-month-year {
+  font-variant-numeric: tabular-nums;
+  font-synthesis: none;
 }
 
 .day-cell.has-todos::after {
@@ -2025,6 +2040,55 @@ body.dark .account-dialog { box-shadow: 0 24px 64px rgba(0, 0, 0, 0.50), inset 0
 .shortcut-dialog-actions .dialog-button { margin-top: 0; }
 body.dark .shortcut-dialog { box-shadow: 0 24px 64px rgba(0, 0, 0, 0.50), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
 
+/* ---------- Queens ---------- */
+.queens-launcher {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--card-bg) 86%, transparent);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  cursor: pointer;
+  transition: transform 240ms ease, border-color 240ms ease, box-shadow 240ms ease, background 240ms ease;
+}
+.queens-launcher:hover { transform: translateY(-1px); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--card-bg)); box-shadow: 0 8px 22px var(--accent-glow); }
+.queens-dialog { width: min(520px, calc(100vw - 32px)); max-height: min(760px, calc(100vh - 32px)); margin: auto; padding: 0; overflow: auto; border: 1px solid var(--border); border-radius: 24px; color: var(--text); background: var(--card-bg); box-shadow: 0 28px 76px rgba(15,23,42,.34), inset 0 1px 0 rgba(255,255,255,.55); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%); backdrop-filter: blur(var(--glass-blur)) saturate(150%); }
+.queens-dialog::backdrop { background: rgba(15,23,42,.56); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.queens-dialog-card { position: relative; padding: 32px; }
+.queens-kicker { margin: 0 0 8px; color: var(--accent); font-size: 11px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+.queens-dialog h2 { margin: 0; font-size: 25px; line-height: 1.18; letter-spacing: -.035em; }
+.queens-copy { margin: 12px 0 0; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+.queens-actions { display: grid; gap: 10px; margin-top: 25px; }
+.queens-actions .dialog-button { width: 100%; margin-top: 0; }
+.queens-actions-inline { display: flex; justify-content: flex-end; }
+.queens-actions-inline .dialog-button { width: auto; }
+.queens-league-prompt { margin: 10px 0 -2px; color: var(--text-muted); font-size: 12px; text-align: center; }
+.queens-username-form { margin-top: 22px; }
+.queens-username-form label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 650; }
+.queens-username-form input { width: 100%; height: 44px; padding: 0 13px; border: 1px solid var(--border); border-radius: 12px; outline: none; background: var(--input-bg, var(--card-bg)); color: var(--text); font: inherit; }
+.queens-username-form input:focus-visible { border-color: var(--accent); outline: 1px solid var(--accent); outline-offset: 2px; }
+.queens-error { min-height: 20px; margin: 8px 0 0; color: #d9534f; font-size: 12px; line-height: 1.45; }
+.queens-meta { display: flex; align-items: baseline; justify-content: space-between; margin-top: 22px; padding: 11px 13px; border: 1px solid var(--border); border-radius: 13px; background: color-mix(in srgb, var(--card-bg) 72%, transparent); }
+.queens-meta strong { font-variant-numeric: tabular-nums; font-size: 17px; letter-spacing: .03em; }
+.queens-meta span { color: var(--text-muted); font-size: 12px; }
+.queens-board { display: grid; grid-template-columns: repeat(5, 1fr); width: min(100%, 390px); aspect-ratio: 1; margin: 16px auto 0; overflow: hidden; border: 1px solid var(--border); border-radius: 18px; box-shadow: inset 0 1px 0 rgba(255,255,255,.36); }
+.queens-cell { position: relative; display: grid; place-items: center; min-width: 0; border: .5px solid color-mix(in srgb, var(--text) 14%, transparent); background: var(--queens-region); cursor: pointer; transition: transform 180ms ease, filter 180ms ease, box-shadow 180ms ease; }
+.queens-cell:hover { z-index: 1; filter: brightness(1.045); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 65%, transparent); }
+.queens-cell.is-queen::after { content: '♛'; color: var(--text); font-size: clamp(25px, 6vw, 37px); line-height: 1; filter: drop-shadow(0 2px 2px rgba(15,23,42,.16)); transform: translateY(-1px); }
+.queens-cell.is-conflict { background: color-mix(in srgb, #f36e67 58%, var(--queens-region)); }
+.queens-cell.is-conflict::after { color: #8b1e1b; }
+.queens-status { min-height: 22px; margin: 12px 0 0; color: var(--text-muted); font-size: 12px; line-height: 1.45; text-align: center; }
+.queens-status.is-success { color: #24754c; font-weight: 650; }
+.queens-leaderboard { display: grid; gap: 8px; margin: 22px 0; padding: 0; list-style: none; }
+.queens-leaderboard li { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 11px 13px; border: 1px solid var(--border); border-radius: 12px; background: color-mix(in srgb, var(--card-bg) 78%, transparent); }
+.queens-leaderboard strong { font-size: 13px; }.queens-leaderboard span { color: var(--text-muted); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+body.dark .queens-dialog { box-shadow: 0 28px 76px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08); }
+body.dark .queens-status.is-success { color: #73d69d; }
+
 .onboarding-dialog::backdrop {
   background: rgba(15, 23, 42, 0.52);
   -webkit-backdrop-filter: blur(6px);
@@ -2212,4 +2276,7 @@ body.dark .onboarding-dialog {
   .app-dialog-actions { flex-direction: column-reverse; }
   .dialog-button { width: 100%; }
   .onboarding-card { padding: 26px 20px 22px; }
+  .queens-dialog-card { padding: 26px 20px 22px; }
+  .queens-actions-inline { flex-direction: column-reverse; }
+  .queens-actions-inline .dialog-button { width: 100%; }
 }

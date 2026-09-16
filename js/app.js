@@ -13,4 +13,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   SearchModule.init();
   await SyncModule.init();
   await OnboardingModule.init();
+  await QueensModule.init();
 });
