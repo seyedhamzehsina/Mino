@@ -9,6 +9,9 @@ const QueensModule = {
   timer: null,
   leagueUsername: null,
   leagueGame: false,
+  stageCount: 3,
+  currentStage: 0,
+  stageResults: [],
 
   async init() {
     this.dialog = document.getElementById('queens-dialog');
@@ -229,9 +232,9 @@ const QueensModule = {
     return count;
   },
 
-  createPuzzle() {
+  createPuzzle(stage = this.currentStage) {
     const solutions = [[0, 2, 4, 1, 3], [1, 4, 2, 0, 3], [2, 0, 3, 1, 4], [3, 0, 2, 4, 1], [4, 2, 0, 3, 1]];
-    const random = this.seeded(`mino-queens-${this.dateKey()}`);
+    const random = this.seeded(`mino-queens-${this.dateKey()}-stage-${stage + 1}`);
     for (let attempt = 0; attempt < 500; attempt += 1) {
       const solution = solutions[Math.floor(random() * solutions.length)];
       const regions = this.createRegions(solution, random);
@@ -243,7 +246,14 @@ const QueensModule = {
 
   async startGame(leagueGame) {
     this.leagueGame = leagueGame;
-    this.puzzle = this.createPuzzle();
+    this.currentStage = 0;
+    this.stageResults = [];
+    this.loadStage();
+  },
+
+  loadStage() {
+    this.stopTimer();
+    this.puzzle = this.createPuzzle(this.currentStage);
     this.placed = new Set();
     this.moves = 0;
     this.startedAt = Date.now();
@@ -270,8 +280,24 @@ const QueensModule = {
     return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
   },
 
+  renderProgress() {
+    const progress = document.createElement('div');
+    progress.className = 'queens-progress';
+    progress.setAttribute('aria-label', `Stage ${this.currentStage + 1} of ${this.stageCount}`);
+    for (let index = 0; index < this.stageCount; index += 1) {
+      const step = document.createElement('span');
+      step.className = 'queens-progress-step';
+      step.classList.toggle('is-complete', index < this.stageResults.length);
+      step.classList.toggle('is-current', index === this.currentStage);
+      step.textContent = index < this.stageResults.length ? '✓' : String(index + 1);
+      progress.append(step);
+    }
+    return progress;
+  },
+
   renderGame() {
-    this.view.replaceChildren(this.heading(this.leagueGame ? `Queens League · ${this.leagueUsername}` : 'Queens · solo', 'Today’s Queens', 'One queen in every row, column, and colored region. No touching corners.'));
+    this.view.replaceChildren(this.heading(this.leagueGame ? `Queens League · ${this.leagueUsername}` : 'Queens · daily run', `Stage ${this.currentStage + 1} of ${this.stageCount}`, 'Place one queen in each row, column, and colored region. Queens may not touch diagonally.'));
+    this.view.append(this.renderProgress());
     const meta = document.createElement('div');
     meta.className = 'queens-meta';
     const timer = document.createElement('strong');
@@ -280,7 +306,10 @@ const QueensModule = {
     const moves = document.createElement('span');
     moves.id = 'queens-moves';
     moves.textContent = '0 moves';
-    meta.append(timer, moves);
+    const xp = document.createElement('span');
+    xp.className = 'queens-xp';
+    xp.textContent = `${this.stageResults.length * 100} XP`;
+    meta.append(timer, moves, xp);
     const board = document.createElement('div');
     board.className = 'queens-board';
     board.setAttribute('role', 'grid');
@@ -301,7 +330,7 @@ const QueensModule = {
     status.className = 'queens-status';
     const actions = document.createElement('div');
     actions.className = 'queens-actions queens-actions-inline';
-    actions.append(this.button('Restart', 'dialog-button dialog-button-secondary', () => this.startGame(this.leagueGame)), this.button(this.leagueGame ? 'League table' : 'Join league', 'dialog-button dialog-button-secondary', () => this.leagueGame ? this.showLeaderboard() : this.enterLeague()));
+    actions.append(this.button('Restart run', 'dialog-button dialog-button-secondary', () => this.startGame(this.leagueGame)), this.button('Exit game', 'dialog-button dialog-button-secondary', () => this.showWelcome()));
     this.view.append(meta, board, status, actions);
     this.updateBoard();
   },
@@ -311,7 +340,7 @@ const QueensModule = {
     else this.placed.add(index);
     this.moves += 1;
     this.updateBoard();
-    if (this.isSolved()) this.finishGame();
+    if (this.isSolved()) this.completeStage();
   },
 
   conflicts() {
@@ -337,7 +366,11 @@ const QueensModule = {
       cell.classList.toggle('is-conflict', conflict);
       if (conflict) conflicting = true;
     });
-    status.textContent = conflicting ? 'A queen is touching another queen or shares a row, column, or region.' : (this.placed.size ? `${this.placed.size} of ${this.size} queens placed.` : 'Tap a square to place your first queen.');
+    status.classList.toggle('is-warning', conflicting);
+    status.classList.remove('is-success');
+    status.textContent = conflicting
+      ? 'Not quite — one or more queens conflict. Adjust the highlighted squares to continue.'
+      : (this.placed.size ? `${this.placed.size} / ${this.size} queens placed · ${this.size - this.placed.size} to go.` : 'Stage ready · place your first queen.');
   },
 
   updateTimer() {
@@ -351,23 +384,67 @@ const QueensModule = {
     return [rows, cols, diagA, diagB, regions].every(map => [...map.values()].every(count => count === 1));
   },
 
-  async finishGame() {
+  completeStage() {
     this.stopTimer();
     const seconds = this.elapsedSeconds();
-    const status = document.getElementById('queens-status');
-    status.textContent = `Solved in ${this.timeLabel(seconds)} with ${this.moves} moves.`;
-    status.classList.add('is-success');
+    this.stageResults.push({ seconds, moves: this.moves });
+    this.showStageResult(seconds);
+  },
+
+  showStageResult(seconds) {
+    const isFinal = this.currentStage === this.stageCount - 1;
+    this.view.replaceChildren(this.heading('Stage cleared', isFinal ? 'Final stage cleared.' : `Stage ${this.currentStage + 1} complete.`, isFinal ? 'You completed today’s Queens run.' : 'Clean solve. Your next board is ready when you are.'));
+    this.view.append(this.renderProgress());
+    const reward = document.createElement('section');
+    reward.className = 'queens-reward';
+    const icon = document.createElement('span');
+    icon.className = 'queens-reward-icon';
+    icon.textContent = isFinal ? '♛' : '✦';
+    const copy = document.createElement('div');
+    const title = document.createElement('strong');
+    title.textContent = `+100 XP · ${this.timeLabel(seconds)}`;
+    const detail = document.createElement('span');
+    detail.textContent = `${this.moves} moves · ${this.stageResults.length} / ${this.stageCount} stages completed`;
+    copy.append(title, detail); reward.append(icon, copy);
+    const actions = document.createElement('div');
+    actions.className = 'queens-actions';
+    actions.append(this.button(isFinal ? 'See my daily result' : 'Next stage', 'dialog-button dialog-button-primary', () => {
+      if (isFinal) this.finishRun();
+      else { this.currentStage += 1; this.loadStage(); }
+    }));
+    this.view.append(reward, actions);
+  },
+
+  async finishRun() {
+    const seconds = this.stageResults.reduce((total, result) => total + result.seconds, 0);
+    const moves = this.stageResults.reduce((total, result) => total + result.moves, 0);
+    const speedBonus = Math.max(0, 60 - Math.min(60, Math.floor(seconds / 2)));
+    this.view.replaceChildren(this.heading('Daily run complete', '+300 XP earned.', `You cleared all ${this.stageCount} stages in ${this.timeLabel(seconds)} with ${moves} moves.`));
+    this.view.append(this.renderProgress());
+    const reward = document.createElement('section');
+    reward.className = 'queens-reward queens-reward-final';
+    const icon = document.createElement('span');
+    icon.className = 'queens-reward-icon';
+    icon.textContent = '♛';
+    const copy = document.createElement('div');
+    const title = document.createElement('strong');
+    title.textContent = 'Daily crown unlocked';
+    const detail = document.createElement('span');
+    detail.textContent = `${speedBonus ? `+${speedBonus} speed bonus · ` : ''}Come back tomorrow for a new run.`;
+    copy.append(title, detail); reward.append(icon, copy);
+    const actions = document.createElement('div');
+    actions.className = 'queens-actions';
+    actions.append(this.button(this.leagueGame ? 'View league table' : 'Join Queens League', 'dialog-button dialog-button-primary', () => this.leagueGame ? this.showLeaderboard() : this.enterLeague()), this.button('Back to Queens', 'dialog-button dialog-button-secondary', () => this.showWelcome()));
+    this.view.append(reward, actions);
     if (!this.leagueGame) return;
     try {
-      await this.submitScore(seconds);
-      status.textContent = `Solved in ${this.timeLabel(seconds)}. Your league result is saved.`;
+      await this.submitScore(seconds, moves);
     } catch {
-      status.textContent = `Solved in ${this.timeLabel(seconds)}. Your result is saved on this device and will retry when you play again.`;
-      await StorageManager.set('queensPendingScore', { day_key: this.dateKey(), duration_seconds: seconds, moves: this.moves });
+      await StorageManager.set('queensPendingScore', { day_key: this.dateKey(), duration_seconds: seconds, moves });
     }
   },
 
-  async submitScore(seconds) {
+  async submitScore(seconds, moves) {
     const query = new URLSearchParams({
       day_key: `eq.${this.dateKey()}`,
       user_id: `eq.${AuthModule.session.user.id}`,
@@ -376,11 +453,11 @@ const QueensModule = {
     const current = await fetch(`${SyncConfig.SUPABASE_URL}/rest/v1/queens_scores?${query}`, { headers: AuthModule.authHeaders() });
     if (!current.ok) throw new Error('Score lookup failed');
     const [previous] = await current.json();
-    if (previous && (previous.duration_seconds < seconds || (previous.duration_seconds === seconds && previous.moves <= this.moves))) {
+    if (previous && (previous.duration_seconds < seconds || (previous.duration_seconds === seconds && previous.moves <= moves))) {
       await StorageManager.set('queensPendingScore', null);
       return;
     }
-    const score = { day_key: this.dateKey(), user_id: AuthModule.session.user.id, username: this.leagueUsername, duration_seconds: seconds, moves: this.moves };
+    const score = { day_key: this.dateKey(), user_id: AuthModule.session.user.id, username: this.leagueUsername, duration_seconds: seconds, moves };
     const response = await fetch(`${SyncConfig.SUPABASE_URL}/rest/v1/queens_scores?on_conflict=day_key,user_id`, {
       method: 'POST',
       headers: { ...AuthModule.authHeaders(), 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' },
