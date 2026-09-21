@@ -43,7 +43,13 @@ const CalendarModule = {
     const header = document.getElementById('calendar-month-year');
     const grid = document.getElementById('calendar-grid');
     grid.innerHTML = '';
-    const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+    grid.dataset.calendarType = this.settings.type;
+    // Jalali weeks conventionally begin on Saturday, while Gregorian weeks
+    // keep the familiar Sunday-first order used elsewhere in the extension.
+    const isPersian = this.settings.type === 'persian';
+    const days = isPersian
+      ? ['Sa', 'Su', 'Mo', 'Tu', 'We', 'Th', 'Fr']
+      : ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
     days.forEach(d => { const div = document.createElement('div'); div.className = 'day-name'; div.innerText = d; grid.appendChild(div); });
 
     let monthLabel = '';
@@ -63,7 +69,10 @@ const CalendarModule = {
           if (!p || p.month !== jp.month) { daysInMonth = i; break; }
         }
         monthLabel = `${this.jalaliMonths[jp.month - 1]} ${jp.year}`;
-        for (let i = 0; i < monthStart.getDay(); i++) cells.push(null);
+        // Date#getDay is always Sunday-first (Sun = 0). Shift it one column
+        // so Saturday becomes the first column in the Persian calendar.
+        const firstDay = (monthStart.getDay() + 1) % 7;
+        for (let i = 0; i < firstDay; i++) cells.push(null);
         for (let d = 1; d <= daysInMonth; d++) {
           const cellDate = new Date(monthStart);
           cellDate.setDate(monthStart.getDate() + d - 1);

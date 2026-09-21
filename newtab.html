@@ -15,14 +15,16 @@
         <circle class="brand-accent" cx="32" cy="41" r="3.5"/>
       </svg>
       <div class="top-actions">
-        <button id="auth-toggle" class="auth-toggle" title="Sign in to your Mino account" hidden>Sign in</button>
-        <button id="auth-signout" class="auth-signout" type="button" hidden>Sign out</button>
+        <div class="auth-account">
+          <button id="auth-toggle" class="auth-toggle" title="Sign in to your Mino account" aria-haspopup="menu" aria-controls="auth-menu" aria-expanded="false" hidden>Sign in</button>
+          <div id="auth-menu" class="auth-menu" role="menu" hidden>
+            <p id="auth-menu-email" class="auth-menu-email"></p>
+            <button id="auth-signout" class="auth-menu-signout" type="button" role="menuitem">Sign out</button>
+          </div>
+        </div>
         <div class="utility-actions">
-          <button id="settings-toggle" class="settings-toggle" title="Settings" aria-label="Settings">
+          <button id="settings-toggle" class="settings-toggle" title="Settings" aria-label="Settings" aria-controls="settings-panel" aria-expanded="false">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-          </button>
-          <button id="queens-launcher" class="queens-launcher" type="button" title="Game" aria-label="Game">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.8 10h10.4a4.1 4.1 0 0 1 3.9 5.3l-1.1 3.4a1.8 1.8 0 0 1-3.3.3l-1.1-2.1H8.4l-1.1 2.1a1.8 1.8 0 0 1-3.3-.3l-1.1-3.4A4.1 4.1 0 0 1 6.8 10Z"></path><path d="M7.5 13h3M9 11.5v3M16.5 13h.01M18.5 14.5h.01"></path></svg>
           </button>
         </div>
       </div>
@@ -181,6 +183,30 @@
     </section>
   </dialog>
 
+  <dialog id="support-dialog" class="support-dialog" aria-labelledby="support-dialog-title">
+    <section class="support-dialog-card">
+      <button id="support-dialog-close" class="app-dialog-close" type="button" aria-label="Close support details">&times;</button>
+      <div class="support-dialog-heading">
+        <span class="usdt-mark" aria-hidden="true">₮</span>
+        <div>
+          <p class="support-kicker">Support Mino</p>
+          <h2 id="support-dialog-title">USDT donation details</h2>
+        </div>
+      </div>
+      <p class="support-dialog-intro">Help keep Mino independent. Use the exact network shown below.</p>
+      <div class="support-network" aria-label="Required network: Ethereum ERC-20">
+        <span class="ethereum-mark" aria-hidden="true">◆</span>
+        <span><strong>Ethereum</strong><small>ERC-20 network only</small></span>
+      </div>
+      <div class="support-wallet">
+        <span>USDT receiving address</span>
+        <code>0x72Aa5D97ee363D4C735559EC70c81f417fa6F622</code>
+      </div>
+      <button id="settings-support-copy" class="support-copy-button" type="button">Copy address</button>
+      <p class="support-warning"><strong>Important:</strong> Send USDT only through Ethereum (ERC-20). Transfers sent on another network may be lost.</p>
+    </section>
+  </dialog>
+
   <div id="settings-panel" class="settings-panel" hidden>
     <div class="settings-header">
       <span>Appearance</span>
@@ -238,6 +264,11 @@
         <span>Display name</span>
         <input type="text" id="setting-name" placeholder="e.g. Alex" maxlength="30">
       </label>
+      <button id="settings-support-open" class="settings-support-trigger" type="button" aria-haspopup="dialog">
+        <span class="settings-support-trigger-mark" aria-hidden="true">₮</span>
+        <span class="settings-support-trigger-copy"><strong>Support Mino</strong><small>USDT · Ethereum</small></span>
+        <span class="settings-support-trigger-arrow" aria-hidden="true">›</span>
+      </button>
     </div>
   </div>
 

@@ -6,9 +6,16 @@ const AuthModule = {
     const btn = document.getElementById('auth-toggle');
     if (btn) btn.addEventListener('click', () => {
       if (!this.session?.user) this.openSignInDialog();
+      else this.toggleAccountMenu();
     });
     const signOutBtn = document.getElementById('auth-signout');
     if (signOutBtn) signOutBtn.addEventListener('click', () => this.signOut());
+    document.addEventListener('click', (event) => {
+      if (!(event.target instanceof Element) || !event.target.closest('.auth-account')) this.closeAccountMenu();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') this.closeAccountMenu();
+    });
     window.addEventListener('online', () => this.retrySessionRefresh());
 
     await this.consumeRedirectHash();
@@ -256,29 +263,60 @@ const AuthModule = {
     document.dispatchEvent(new CustomEvent('auth-session-changed', { detail: { type: 'sign-out-handled' } }));
   },
 
+  toggleAccountMenu() {
+    const menu = document.getElementById('auth-menu');
+    const button = document.getElementById('auth-toggle');
+    if (!menu || !button || !this.session?.user) return;
+    if (menu.hidden) this.openAccountMenu();
+    else this.closeAccountMenu();
+  },
+
+  openAccountMenu() {
+    const menu = document.getElementById('auth-menu');
+    const button = document.getElementById('auth-toggle');
+    if (!menu || !button || !this.session?.user) return;
+    clearTimeout(this.accountMenuCloseTimer);
+    menu.hidden = false;
+    requestAnimationFrame(() => menu.classList.add('is-open'));
+    button.setAttribute('aria-expanded', 'true');
+  },
+
+  closeAccountMenu() {
+    const menu = document.getElementById('auth-menu');
+    const button = document.getElementById('auth-toggle');
+    if (!menu || menu.hidden) return;
+    menu.classList.remove('is-open');
+    button?.setAttribute('aria-expanded', 'false');
+    clearTimeout(this.accountMenuCloseTimer);
+    this.accountMenuCloseTimer = setTimeout(() => { menu.hidden = true; }, 240);
+  },
+
   render() {
     const btn = document.getElementById('auth-toggle');
     const signOutBtn = document.getElementById('auth-signout');
-    if (!btn || !signOutBtn) return;
+    const menu = document.getElementById('auth-menu');
+    const email = document.getElementById('auth-menu-email');
+    if (!btn || !signOutBtn || !menu || !email) return;
     if (!SyncConfig.enabled) {
       btn.hidden = true;
-      signOutBtn.hidden = true;
+      menu.classList.remove('is-open');
+      menu.hidden = true;
       return;
     }
     btn.hidden = false;
     if (this.session && this.session.user) {
       const initial = (this.session.user.name || this.session.user.email || '?').trim().charAt(0).toUpperCase();
       btn.textContent = initial;
-      btn.title = `${this.session.user.email} — click to sign out`;
       btn.classList.add('signed-in');
-      btn.title = `Signed in as ${this.session.user.email}`;
-      signOutBtn.hidden = false;
+      btn.title = `Account menu for ${this.session.user.email}`;
+      email.textContent = this.session.user.email;
       signOutBtn.title = `Sign out from ${this.session.user.email}`;
     } else {
       btn.textContent = 'Sign in';
       btn.title = 'Sign in to your Mino account';
       btn.classList.remove('signed-in');
-      signOutBtn.hidden = true;
+      menu.hidden = true;
+      btn.setAttribute('aria-expanded', 'false');
     }
   }
 };

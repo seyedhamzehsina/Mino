@@ -10,7 +10,8 @@ This file is the ready-to-paste source for the Chrome Web Store Developer Dashbo
 - **Short description:** A calm, customizable new tab with a clock, daily todos, calendar, shortcuts, and private workspace sync.
 - **Official URL:** https://github.com/seyedhamzehsina/Mino
 - **Support URL:** https://github.com/seyedhamzehsina/Mino/issues
-- **Privacy policy URL:** `[Publish privacy-policy.html over HTTPS, then paste its public URL here.]`
+- **Privacy policy URL:** `https://mino-new-tab.seyedhamzehsina.chatgpt.site/privacy.html`
+  - Before submitting to Chrome Web Store, make this URL publicly reachable. The current Sites deployment is owner-only and Chrome reviewers must be able to open it without signing in.
 
 ## Detailed description
 
@@ -32,7 +33,7 @@ Mino is designed to be quiet, readable, and personal. Setup uses Google sign-in 
 
 ## Privacy practices submission
 
-Use the actual behavior of version 1.1.1 when completing the Privacy practices tab.
+Use the actual behavior of version 1.2.0 when completing the Privacy practices tab.
 
 | Data type | Handled? | Purpose | Stored/transmitted |
 | --- | --- | --- | --- |
@@ -60,9 +61,10 @@ For the dashboard declarations, state that Mino does **not** sell user data, use
 
 ## Final submission checklist
 
-- [ ] Replace the Privacy policy URL with a public HTTPS URL.
+- [ ] Make the deployed Privacy policy URL publicly reachable for Chrome reviewers.
 - [ ] Verify the Google OAuth redirect URL in Supabase and Google Cloud for the production extension ID.
-- [ ] Capture current, unedited screenshots from Chrome.
-- [ ] Upload the ZIP containing the extension contents, not the project folder.
+- [ ] Capture current, unedited screenshots from Chrome after the final extension reload.
+- [x] Create the runtime-only ZIP for version 1.2.0: `release/mino-1.2.0.zip`.
+- [ ] Upload that ZIP to the Chrome Web Store Developer Dashboard.
 - [ ] Complete the Privacy practices and Single purpose declarations to match the table above.
 - [ ] Submit first to the intended test audience, then review and publish.

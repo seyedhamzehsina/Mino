@@ -11,11 +11,7 @@
   "permissions": ["storage", "identity"],
   "host_permissions": [
     "https://suggestqueries.google.com/*",
-    "https://*.supabase.co/*",
-    "https://images.unsplash.com/*",
-    "https://plus.unsplash.com/*",
-    "https://source.unsplash.com/*",
-    "https://unsplash.com/*"
+    "https://*.supabase.co/*"
   ],
   "chrome_url_overrides": {
     "newtab": "newtab.html"

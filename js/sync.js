@@ -49,7 +49,7 @@ const SyncModule = {
   },
 
   async queueDelete(todo, dateKey) {
-    if (!todo || typeof todo.id !== 'string' || !/^\d{8}-\d{4}-\d{4}-\d{4}-\d{12}$/i.test(todo.id)) return;
+    if (!todo || typeof todo.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(todo.id)) return;
     this.tombstones = this.tombstones.filter(item => item.id !== todo.id);
     this.tombstones.push({
       id: todo.id,

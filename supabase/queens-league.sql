@@ -13,8 +13,9 @@ create table if not exists public.queens_scores (
   created_at timestamptz not null default now(),
   primary key (day_key, user_id)
 );
-create index if not exists queens_scores_daily_rank_idx
-  on public.queens_scores (day_key, duration_seconds, moves);
+drop index if exists public.queens_scores_daily_rank_idx;
+create index queens_scores_daily_rank_idx
+  on public.queens_scores (day_key, (duration_seconds + moves * 10), duration_seconds, moves);
 
 alter table public.queens_scores enable row level security;
 
@@ -32,6 +33,25 @@ create policy "update own Queens score" on public.queens_scores
   for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 create or replace view public.queens_leaderboard as
-  select day_key, username, duration_seconds, moves
+  select day_key, username, duration_seconds, moves,
+    (duration_seconds + moves * 10) as performance_score,
+    greatest(1, 1000 - (duration_seconds + moves * 10)) as league_points
   from public.queens_scores;
 grant select on public.queens_leaderboard to authenticated;
+
+create or replace view public.queens_weekly_leaderboard as
+  select date_trunc('week', day_key)::date as week_start, username,
+    count(*)::integer as days_played,
+    sum(greatest(1, 1000 - (duration_seconds + moves * 10)))::integer as league_points,
+    sum(duration_seconds + moves * 10)::integer as total_performance_score
+  from public.queens_scores
+  group by date_trunc('week', day_key)::date, username;
+grant select on public.queens_weekly_leaderboard to authenticated;
+
+create or replace view public.queens_all_time_leaderboard as
+  select username, count(*)::integer as days_played,
+    sum(greatest(1, 1000 - (duration_seconds + moves * 10)))::integer as league_points,
+    sum(duration_seconds + moves * 10)::integer as total_performance_score
+  from public.queens_scores
+  group by username;
+grant select on public.queens_all_time_leaderboard to authenticated;

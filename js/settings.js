@@ -1,5 +1,5 @@
 const SettingsModule = {
-  settings: { theme: 'light', accent: '#e07a5f', glassOpacity: 62, glassBlur: 18, lastGradient: 'sunset', background: { type: 'gradient', value: 'sunset' } },
+  settings: { theme: 'light', accent: '#ff7a59', glassOpacity: 62, glassBlur: 18, lastGradient: 'sunset', background: { type: 'gradient', value: 'sunset' } },
   contrastResizeTimer: null,
   contrastImage: null,
   contrastImageUrl: '',
@@ -38,6 +38,12 @@ const SettingsModule = {
       if (saved.background && saved.background.value === 'darkViolet') saved.background.value = 'violet';
       this.settings = { ...this.settings, ...saved, background: { ...this.settings.background, ...(saved.background || {}) } };
     }
+    const retiredAccentMap = { '#e07a5f': '#ff7a59', '#e76f51': '#ff7a59', '#f4a261': '#d3a331' };
+    const replacementAccent = retiredAccentMap[this.settings.accent];
+    if (replacementAccent) {
+      this.settings.accent = replacementAccent;
+      await StorageManager.set('appearanceSettings', this.settings);
+    }
     if (this.settings.background.type === 'gradient' && this.gradients[this.settings.background.value]) {
       this.settings.lastGradient = this.settings.background.value;
     }
@@ -46,16 +52,37 @@ const SettingsModule = {
     this.buildPanel();
     document.getElementById('settings-toggle').addEventListener('click', () => {
       const panel = document.getElementById('settings-panel');
-      panel.hidden = !panel.hidden;
+      if (panel.hidden) this.openPanel();
+      else this.closePanel();
     });
-    document.getElementById('settings-close').addEventListener('click', () => {
-      document.getElementById('settings-panel').hidden = true;
+    document.getElementById('settings-close').addEventListener('click', () => this.closePanel());
+    document.getElementById('settings-support-open')?.addEventListener('click', () => {
+      this.closePanel();
+      document.getElementById('support-dialog')?.showModal();
+    });
+    document.getElementById('support-dialog-close')?.addEventListener('click', () => {
+      document.getElementById('support-dialog')?.close();
+    });
+    document.getElementById('settings-support-copy')?.addEventListener('click', async (event) => {
+      const address = '0x72Aa5D97ee363D4C735559EC70c81f417fa6F622';
+      const button = event.currentTarget;
+      try {
+        await navigator.clipboard.writeText(address);
+        button.textContent = 'Address copied';
+        setTimeout(() => { button.textContent = 'Copy address'; }, 1800);
+      } catch {
+        button.textContent = 'Copy unavailable';
+        setTimeout(() => { button.textContent = 'Copy address'; }, 1800);
+      }
     });
     document.addEventListener('click', (e) => {
       const panel = document.getElementById('settings-panel');
       if (!panel.hidden && !panel.contains(e.target) && !document.getElementById('settings-toggle').contains(e.target)) {
-        panel.hidden = true;
+        this.closePanel();
       }
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !document.getElementById('settings-panel').hidden) this.closePanel();
     });
     window.addEventListener('resize', () => {
       clearTimeout(this.contrastResizeTimer);
@@ -64,6 +91,23 @@ const SettingsModule = {
         if (bg.type === 'image' && bg.value) this.updateImageContrast(bg.value);
       }, 180);
     });
+  },
+  openPanel() {
+    const panel = document.getElementById('settings-panel');
+    const toggle = document.getElementById('settings-toggle');
+    clearTimeout(this.panelCloseTimer);
+    panel.hidden = false;
+    requestAnimationFrame(() => panel.classList.add('is-open'));
+    toggle.setAttribute('aria-expanded', 'true');
+  },
+  closePanel() {
+    const panel = document.getElementById('settings-panel');
+    const toggle = document.getElementById('settings-toggle');
+    if (panel.hidden) return;
+    panel.classList.remove('is-open');
+    toggle.setAttribute('aria-expanded', 'false');
+    clearTimeout(this.panelCloseTimer);
+    this.panelCloseTimer = setTimeout(() => { panel.hidden = true; }, 230);
   },
   async save() {
     await StorageManager.set('appearanceSettings', this.settings);
@@ -149,7 +193,8 @@ const SettingsModule = {
     });
 
     const accentContainer = document.getElementById('accent-options');
-    const colors = ['#e07a5f', '#3d8bfd', '#2a9d8f', '#9b5de5', '#e76f51', '#f4a261'];
+    // One warm brand accent, then clearly separated cool, natural, and gold choices.
+    const colors = ['#ff7a59', '#3d8bfd', '#2a9d8f', '#9b5de5', '#d9534f', '#d3a331'];
     colors.forEach(color => {
       const btn = document.createElement('button');
       btn.className = 'color-option';
