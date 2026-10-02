@@ -680,8 +680,7 @@ body.dark .date {
   border-radius: 10px;
   background: var(--accent);
   color: #fff;
-  font-size: 20px;
-  line-height: 1;
+  line-height: 0;
   cursor: pointer;
   flex-shrink: 0;
   display: flex;
@@ -689,6 +688,16 @@ body.dark .date {
   justify-content: center;
   padding: 0;
   transition: opacity 0.15s ease;
+}
+
+.todo-form button svg {
+  display: block;
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.25;
+  stroke-linecap: round;
 }
 
 .todo-form button:hover {
@@ -1702,7 +1711,6 @@ body.dark .card {
 
 .todo-form button {
   width: 40px;
-  font-size: 18px;
 }
 
 .todo-item {
