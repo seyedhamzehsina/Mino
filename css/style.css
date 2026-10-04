@@ -150,6 +150,7 @@ body.dark .date {
 }
 
 /* ---------- Brand logo ---------- */
+.brand-link { display:flex; flex-shrink:0; border-radius:9px; color:inherit; text-decoration:none; }.brand-link:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
 .brand-logo {
   width: 32px;
   height: 32px;
@@ -170,7 +171,7 @@ body.dark .date {
   fill: #ff7a59;
 }
 
-.brand-logo:hover {
+.brand-link:hover .brand-logo {
   opacity: 1;
   transform: scale(1.05);
 }
