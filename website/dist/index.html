@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Mino — Everything essential. Nothing extra.">
+  <title>Mino — Everything essential. Nothing extra.</title>
+  <link rel="icon" type="image/svg+xml" href="images/mino-logo-icon.svg">
+  <style>
+    :root { --font-sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; --night:#071321; --ink:#102339; --orange:#ff9d68; --line:rgba(235,249,247,.17); --radius-sm:10px; --radius-md:12px; --radius-lg:16px; --radius-xl:20px; --ease:cubic-bezier(.22,1,.36,1); }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--night); color:#f6fbfa; font-family:var(--font-sans); }
+    a { color:inherit; text-decoration:none; }
+    .shell { width:min(1200px,calc(100% - 48px)); margin:auto; }
+    .nav { position:absolute; z-index:3; inset:0 0 auto; height:92px; display:flex; align-items:center; justify-content:space-between; }
+    .brand { display:flex; align-items:center; gap:11px; font-size:1.08rem; font-weight:720; letter-spacing:-.045em; transition:opacity .55s var(--ease),transform .55s var(--ease); }
+    .brand:hover { opacity:.78; transform:translateY(-1px); }
+    .brand img { width:30px; height:30px; }
+    .links { display:flex; align-items:center; gap:25px; color:rgba(255,255,255,.76); font-size:.87rem; }
+    .links a:not(.nav-cta) { position:relative; }
+    .links a:not(.nav-cta):after { content:""; position:absolute; right:0; bottom:-7px; left:0; height:1px; background:var(--orange); transform:scaleX(0); transform-origin:right; transition:transform .52s var(--ease); }
+    .links a:not(.nav-cta):hover { color:#fff; }
+    .links a:not(.nav-cta):hover:after { transform:scaleX(1); transform-origin:left; }
+    .nav-cta { padding:10px 15px; border:1px solid rgba(255,255,255,.34); border-radius:var(--radius-md); transition:transform .52s var(--ease),background .52s ease,border-color .52s ease,box-shadow .52s ease; }
+    .nav-cta:hover { background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.7); box-shadow:0 10px 24px rgba(0,0,0,.14); transform:translateY(-2px); }
+    .hero { position:relative; min-height:100svh; display:flex; align-items:flex-end; overflow:hidden; isolation:isolate; }
+    .hero-image { position:absolute; z-index:-2; inset:0; width:100%; height:100%; object-fit:cover; object-position:72% center; }
+    .hero:after { content:""; position:absolute; z-index:-1; inset:0; background:linear-gradient(90deg,rgba(3,15,28,.9) 0%,rgba(3,15,28,.6) 39%,rgba(3,15,28,.18) 62%,rgba(3,15,28,.01) 83%),linear-gradient(0deg,rgba(3,15,28,.86),transparent 52%); }
+    .hero-copy { max-width:720px; padding-bottom:clamp(64px,10vh,116px); }
+    .eyebrow { margin:0 0 17px; color:var(--orange); font-size:.72rem; font-weight:800; letter-spacing:.17em; text-transform:uppercase; }
+    h1,h2 { margin:0; letter-spacing:-.075em; line-height:.91; font-weight:650; }
+    h1 { font-size:clamp(3.6rem,7.4vw,7rem); }
+    .hero-copy > p:not(.eyebrow) { max-width:430px; margin:26px 0 0; color:rgba(241,250,249,.73); font-size:1.05rem; line-height:1.65; }
+    .cta-primary { display:inline-flex; align-items:center; gap:16px; min-height:54px; margin-top:31px; padding:0 10px 0 20px; border-radius:15px; background:var(--orange); color:#172332; font-size:.95rem; font-weight:780; box-shadow:0 15px 34px rgba(255,157,104,.28); transition:transform .58s var(--ease),box-shadow .58s ease,background .58s ease; }
+    .cta-primary i { display:grid; place-items:center; width:35px; height:35px; border-radius:10px; background:rgba(7,19,33,.13); font-style:normal; font-size:1.15rem; transition:transform .58s var(--ease),background .58s ease; }
+    .cta-primary:hover { transform:translateY(-3px); background:#ffb085; box-shadow:0 21px 40px rgba(255,157,104,.36); }
+    .cta-primary:hover i { transform:translate(3px,-3px); background:rgba(7,19,33,.2); }
+    .cta-meta { display:flex; align-items:center; gap:8px; margin-top:14px; color:rgba(241,250,249,.52); font-size:.76rem; }
+    .cta-meta:before { content:""; width:6px; height:6px; border-radius:50%; background:var(--orange); box-shadow:0 0 0 4px rgba(255,157,104,.12); }
+    .manifesto { position:relative; overflow:hidden; padding:150px 0 138px; background:radial-gradient(circle at 77% 20%,#234d52 0,transparent 26%),#0b1d2b; }
+    .manifesto:after { content:""; position:absolute; right:-190px; bottom:-250px; width:550px; height:550px; border:1px solid rgba(235,249,247,.18); border-radius:50%; box-shadow:0 0 0 66px rgba(235,249,247,.025),0 0 0 132px rgba(235,249,247,.02); }
+    .manifesto h2 { max-width:920px; font-size:clamp(3rem,7vw,6.8rem); }
+    .manifesto .line { display:flex; align-items:end; justify-content:space-between; gap:40px; margin-top:65px; padding-top:19px; border-top:1px solid var(--line); }
+    .manifesto .line p { max-width:410px; margin:0; color:rgba(241,250,249,.62); line-height:1.65; }
+    .mark { display:grid; place-items:center; width:75px; height:75px; border:1px solid rgba(255,255,255,.35); border-radius:50%; color:var(--orange); font-size:1.45rem; box-shadow:inset 0 0 29px rgba(255,255,255,.08); transition:transform .68s var(--ease),background .68s ease,box-shadow .68s ease; }
+    .manifesto:hover .mark { transform:rotate(45deg) scale(1.06); background:rgba(255,157,104,.08); }
+    .moments { padding:42px 0; background:#eaf4f1; color:var(--ink); }
+    .moment { position:relative; display:grid; grid-template-columns:96px 1fr 1.35fr 36px; align-items:center; gap:32px; min-height:176px; padding:0 18px; border-bottom:1px solid rgba(16,35,57,.13); border-radius:18px; transition:transform .72s var(--ease),background .72s ease,box-shadow .72s ease,border-color .72s ease; }
+    .moment:last-child { border-bottom-color:transparent; }
+    .moment .number { color:#789795; font-size:.78rem; font-weight:700; letter-spacing:.1em; transition:color .52s ease,transform .72s var(--ease); }
+    .moment h3 { margin:0; font-size:clamp(1.8rem,3vw,3rem); letter-spacing:-.055em; line-height:1; transition:color .52s ease,transform .72s var(--ease); }
+    .moment p { max-width:390px; margin:0; color:#5a6d7a; font-size:.96rem; line-height:1.65; transition:color .52s ease,transform .72s var(--ease); }
+    .moment-arrow { display:grid; place-items:center; width:32px; height:32px; border:1px solid rgba(16,35,57,.16); border-radius:50%; color:#58706f; font-size:1rem; opacity:0; transform:translateX(-10px) scale(.85); transition:opacity .52s ease,transform .72s var(--ease),background .52s ease,border-color .52s ease,color .52s ease; }
+    .moment:hover { z-index:1; border-bottom-color:transparent; background:#0b1d2b; box-shadow:0 18px 36px rgba(14,42,48,.18),inset 0 0 0 1px rgba(255,255,255,.08); transform:translateY(-3px); }
+    .moment:hover .number { color:var(--orange); transform:translateX(5px); }
+    .moment:hover h3 { color:#f3fbfa; transform:translateX(7px); }
+    .moment:hover p { color:rgba(243,251,250,.7); transform:translateX(4px); }
+    .moment:hover .moment-arrow { opacity:1; transform:none; border-color:rgba(255,157,104,.62); background:var(--orange); color:#0b1d2b; }
+    .closing { padding:150px 0; text-align:center; background:radial-gradient(circle at 50% 5%,#304d4c,transparent 33%),#081521; }
+    .closing h2 { max-width:790px; margin:auto; font-size:clamp(3.1rem,6.8vw,6.8rem); }
+    .closing p { max-width:440px; margin:22px auto 0; color:rgba(241,250,249,.64); line-height:1.65; }
+    .support { padding:0 0 80px; background:#081521; }
+    .support-card { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:25px 28px; border:1px solid rgba(255,255,255,.14); border-radius:var(--radius-xl); background:rgba(255,255,255,.045); transition:transform .65s var(--ease),border-color .65s ease,background .65s ease; }
+    .support-card:hover { transform:translateY(-4px); border-color:rgba(38,161,123,.52); background:rgba(255,255,255,.07); }
+    .support-copy { flex:1; }.support-label { display:block; margin-bottom:5px; color:#48c89d; font-size:.68rem; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+    .support-card h3 { margin:0; font-size:1rem; letter-spacing:-.02em; }.support-card p { margin:4px 0 0; color:rgba(241,250,249,.56); font-size:.88rem; }
+    .support-action { flex:0 0 auto; min-height:43px; padding:0 16px; border:1px solid rgba(72,200,157,.68); border-radius:var(--radius-md); background:#26a17b; color:#fff; font:inherit; font-size:.82rem; font-weight:750; cursor:pointer; transition:transform .3s ease,filter .3s ease; }.support-action:hover,.support-action:focus-visible { filter:brightness(1.08); outline:none; transform:translateY(-1px); }.support-action span { margin-left:6px; color:rgba(255,255,255,.78); font-size:.75rem; }
+    .support-dialog { width:min(420px,calc(100% - 32px)); margin:auto; padding:0; border:1px solid rgba(255,255,255,.16); border-radius:var(--radius-xl); background:#0c1d2b; color:#f1faf9; box-shadow:0 28px 80px rgba(0,0,0,.48); }.support-dialog::backdrop { background:rgba(3,15,28,.72); backdrop-filter:blur(4px); }.support-dialog-card { position:relative; padding:26px; }.support-dialog-close { position:absolute; top:13px; right:13px; display:grid; place-items:center; width:32px; height:32px; border:1px solid rgba(255,255,255,.16); border-radius:var(--radius-sm); background:transparent; color:rgba(241,250,249,.76); cursor:pointer; font-size:21px; line-height:1; }.support-dialog-close:hover,.support-dialog-close:focus-visible { border-color:#48c89d; color:#fff; outline:none; }.support-dialog-head { display:flex; align-items:center; gap:12px; padding-right:36px; }.usdt-mark { display:grid; place-items:center; width:36px; height:36px; border-radius:50%; background:#26a17b; color:#fff; font-size:23px; font-weight:800; }.support-dialog-kicker { margin:0 0 4px; color:#48c89d; font-size:.75rem; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }.support-dialog h2 { margin:0; font-size:1.2rem; letter-spacing:-.03em; }.support-dialog-intro { margin:18px 0; color:rgba(241,250,249,.66); font-size:.88rem; line-height:1.55; }.network-card { display:flex; align-items:center; gap:10px; padding:11px; border:1px solid rgba(98,126,234,.55); border-radius:var(--radius-md); background:rgba(98,126,234,.12); }.ethereum-mark { display:grid; place-items:center; width:28px; height:28px; border-radius:var(--radius-sm); background:#627eea; color:#fff; font-size:.88rem; }.network-card div { display:grid; gap:2px; }.network-card strong { font-size:.82rem; }.network-card small { color:rgba(241,250,249,.58); font-size:.75rem; }.wallet-card { display:grid; gap:7px; margin-top:12px; padding:12px; border:1px solid rgba(255,255,255,.13); border-radius:var(--radius-md); background:rgba(0,0,0,.14); }.wallet-card span { color:rgba(241,250,249,.58); font-size:.75rem; }.wallet-card code { overflow-wrap:anywhere; color:#fff; font-size:.75rem; line-height:1.45; }.wallet-copy { width:100%; min-height:42px; margin-top:11px; border:1px solid #26a17b; border-radius:var(--radius-md); background:#26a17b; color:#fff; cursor:pointer; font:inherit; font-size:.82rem; font-weight:750; transition:transform .2s ease,filter .2s ease; }.wallet-copy:hover,.wallet-copy:focus-visible { filter:brightness(1.08); outline:none; transform:translateY(-1px); }.wallet-warning { margin:12px 0 0; color:rgba(241,250,249,.62); font-size:.75rem; line-height:1.55; }.wallet-warning strong { color:#f0b65b; }
+    .footer { display:flex; justify-content:space-between; padding:25px 0 34px; background:#081521; color:rgba(241,250,249,.47); font-size:.78rem; }.footer a { text-decoration:underline; text-underline-offset:3px; }
+    .reveal { opacity:0; transform:translateY(28px); transition:opacity .7s ease,transform .85s var(--ease); }.reveal.visible { opacity:1; transform:none; }
+    @media (prefers-reduced-motion:no-preference) { .hero-copy>* { animation:hero-enter .9s var(--ease) both; }.hero-copy .eyebrow{animation-delay:.05s}.hero-copy h1{animation-delay:.13s}.hero-copy p{animation-delay:.21s}.hero-copy .cta-primary{animation-delay:.29s}.hero-copy .cta-meta{animation-delay:.37s}@keyframes hero-enter{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}} }
+    @media (prefers-reduced-motion:reduce) { *,*:before,*:after { scroll-behavior:auto!important; animation-duration:.01ms!important; transition-duration:.01ms!important; } }
+    @media (max-width:700px) { .shell{width:min(100% - 32px,620px)}.links a:not(.nav-cta){display:none}.hero{min-height:760px}.hero:after{background:linear-gradient(0deg,rgba(3,15,28,.93),rgba(3,15,28,.17) 76%)}.hero-image{object-position:68% center}.hero-copy{padding-bottom:55px}.hero h1{font-size:clamp(3.25rem,14vw,4.7rem)}.manifesto{padding:98px 0}.manifesto .line{align-items:start;flex-direction:column;gap:26px;margin-top:44px}.moments{padding:20px 0}.moment{grid-template-columns:55px 1fr;gap:14px;min-height:0;padding:31px 10px}.moment p{grid-column:2}.moment-arrow{display:none}.moment:hover{transform:none}.closing{padding:98px 0}.support{padding-bottom:50px}.support-card{align-items:start;flex-wrap:wrap}.support-action{width:100%;margin-top:2px}.support-dialog-card{padding:22px}.footer{gap:12px;flex-direction:column} }
+  </style>
+</head>
+<body>
+  <header class="hero" id="top">
+    <img class="hero-image" src="images/mino-hero-atmosphere.jpg" alt="A calm sunrise beyond a luminous glass portal">
+    <nav class="shell nav"><a class="brand" href="#top"><img src="images/mino-logo-icon.svg" alt="">Mino</a><div class="links"><a href="#rhythm">Rhythm</a><a href="privacy.html">Privacy</a><a class="nav-cta" href="#get-mino">Get Mino</a></div></nav>
+    <div class="shell hero-copy"><p class="eyebrow">A quieter start to the internet</p><h1>Everything<br>essential.<br>Nothing extra.</h1><p>A new tab that gives your day a place to arrive—then gets out of the way.</p><a class="cta-primary" href="#get-mino"><span>Discover Mino</span><i>↗</i></a><div class="cta-meta">Chrome new tab extension · Coming soon</div></div>
+  </header>
+  <main>
+    <section class="manifesto"><div class="shell reveal"><p class="eyebrow">Not another dashboard</p><h2>Less to manage.<br>More to focus on.</h2><div class="line"><div class="mark">↘</div><p>Time. Tasks. Shortcuts. A calendar when you need it. Mino keeps the small essentials within reach, without filling your browser with noise.</p></div></div></section>
+    <section class="moments" id="rhythm"><div class="shell"><article class="moment reveal"><span class="number">01 / NOW</span><h3>Arrive.</h3><p>A calm view of time, the day, and the next thing that matters.</p><span class="moment-arrow" aria-hidden="true">↗</span></article><article class="moment reveal"><span class="number">02 / FLOW</span><h3>Move.</h3><p>Search, open, plan, and return to your work with almost no friction.</p><span class="moment-arrow" aria-hidden="true">↗</span></article><article class="moment reveal"><span class="number">03 / YOURS</span><h3>Settle in.</h3><p>Make the space feel personal—light, dark, quiet, and completely yours.</p><span class="moment-arrow" aria-hidden="true">↗</span></article></div></section>
+  </main>
+  <section class="closing" id="get-mino"><div class="shell reveal"><p class="eyebrow">A better start is close</p><h2>Make space for what matters.</h2><p>Mino is preparing for the Chrome Web Store.</p><a class="cta-primary" href="#top"><span>Back to the beginning</span><i>↑</i></a></div></section>
+  <section class="support"><div class="shell support-card reveal"><div class="support-copy"><span class="support-label">Support Mino</span><h3>Built with care. Kept independent.</h3><p>A small contribution helps keep Mino thoughtful, private, and improving.</p></div><button class="support-action" type="button" data-open-support>Support with USDT <span>Ethereum</span></button></div></section>
+  <footer class="shell footer"><span>© 2026 Mino. Everything essential. Nothing extra.</span><a href="privacy.html">Privacy policy</a></footer>
+  <dialog id="support-dialog" class="support-dialog" aria-labelledby="support-dialog-title"><section class="support-dialog-card"><button class="support-dialog-close" type="button" data-close-support aria-label="Close support details">×</button><div class="support-dialog-head"><span class="usdt-mark" aria-hidden="true">₮</span><div><p class="support-dialog-kicker">Support Mino</p><h2 id="support-dialog-title">USDT donation details</h2></div></div><p class="support-dialog-intro">Help keep Mino independent. Use the exact network shown below before sending.</p><div class="network-card" aria-label="Required network: Ethereum ERC-20"><span class="ethereum-mark" aria-hidden="true">◆</span><div><strong>Ethereum</strong><small>ERC-20 network only</small></div></div><div class="wallet-card"><span>USDT receiving address</span><code>0x72Aa5D97ee363D4C735559EC70c81f417fa6F622</code></div><button class="wallet-copy" type="button" data-copy-wallet>Copy address</button><p class="wallet-warning"><strong>Important:</strong> Send USDT only through Ethereum (ERC-20). Transfers sent on another network may be lost.</p></section></dialog>
+  <script>const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;if(!reduced&&'IntersectionObserver'in window){const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target)}}),{threshold:.14});document.querySelectorAll('.reveal').forEach(item=>observer.observe(item))}else document.querySelectorAll('.reveal').forEach(item=>item.classList.add('visible'));const supportDialog=document.querySelector('#support-dialog');document.querySelector('[data-open-support]')?.addEventListener('click',()=>supportDialog?.showModal());document.querySelector('[data-close-support]')?.addEventListener('click',()=>supportDialog?.close());document.querySelectorAll('[data-copy-wallet]').forEach(button=>button.addEventListener('click',async()=>{try{await navigator.clipboard.writeText('0x72Aa5D97ee363D4C735559EC70c81f417fa6F622');button.textContent='Address copied'}catch{button.textContent='Copy unavailable'}setTimeout(()=>{button.textContent='Copy address'},1800)}))</script>
+</body></html>

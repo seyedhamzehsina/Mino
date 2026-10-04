@@ -8,3 +8,7 @@ release/
 *.zip
 .env
 .env.*
+
+# Website's previous standalone Git metadata is retained locally only.
+website/.git-local-history/
+website/.openai/
