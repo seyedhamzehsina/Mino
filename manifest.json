@@ -3,6 +3,7 @@
   "name": "Mino",
   "version": "1.2.0",
   "description": "Everything essential. Nothing extra.",
+  "homepage_url": "https://minotab.site",
   "icons": {
     "16": "assets/icons/icon-16.png",
     "48": "assets/icons/icon-48.png",

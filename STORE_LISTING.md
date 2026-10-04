@@ -8,7 +8,7 @@ This file is the ready-to-paste source for the Chrome Web Store Developer Dashbo
 - **Category:** Productivity
 - **Primary language:** English
 - **Short description:** A calm, customizable new tab with a clock, daily todos, calendar, shortcuts, and private workspace sync.
-- **Official URL:** https://github.com/seyedhamzehsina/Mino
+- **Official URL:** https://minotab.site
 - **Support URL:** https://github.com/seyedhamzehsina/Mino/issues
 - **Privacy policy URL:** `https://mino.seyedhamzehsina.chatgpt.site/privacy.html`
   - Before submitting to Chrome Web Store, make this URL publicly reachable. The current Sites deployment is owner-only and Chrome reviewers must be able to open it without signing in.

@@ -316,6 +316,7 @@ body.dark .date {
 .settings-support-trigger-copy { display:grid; gap:2px; flex:1; min-width:0; }
 .settings-support-trigger-copy strong { font-size:12px; }.settings-support-trigger-copy small { color:var(--text-muted); font-size:10px; }
 .settings-support-trigger-arrow { color:#26a17b; font-size:23px; line-height:1; }
+.settings-website-link { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:8px; padding:7px 2px; color:var(--text-muted); font-size:11px; text-decoration:none; transition:color .18s ease; }.settings-website-link:hover,.settings-website-link:focus-visible { color:var(--text); outline:none; }.settings-website-link span:last-child { font-size:14px; line-height:1; }
 
 .support-dialog { width:min(390px,calc(100% - 32px)); margin:auto; padding:0; border:0; border-radius:18px; background:transparent; color:var(--text); }
 .support-dialog::backdrop { background:rgba(8,15,28,.58); backdrop-filter:blur(3px); }
