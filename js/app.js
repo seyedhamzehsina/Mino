@@ -13,5 +13,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   SearchModule.init();
   await SyncModule.init();
   await OnboardingModule.init();
+  await ReleaseNotesModule.init();
   await QueensModule.init();
 });

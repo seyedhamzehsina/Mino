@@ -7,11 +7,10 @@ This file is the ready-to-paste source for the Chrome Web Store Developer Dashbo
 - **Name:** Mino — Minimal New Tab
 - **Category:** Productivity
 - **Primary language:** English
-- **Short description:** A calm, customizable new tab with a clock, daily todos, calendar, shortcuts, and private workspace sync.
+- **Short description:** A calm new tab with todos, calendar, search, shortcuts, and private workspace sync.
 - **Official URL:** https://minotab.site
 - **Support URL:** https://github.com/seyedhamzehsina/Mino/issues
-- **Privacy policy URL:** `https://mino.seyedhamzehsina.chatgpt.site/privacy.html`
-  - Before submitting to Chrome Web Store, make this URL publicly reachable. The current Sites deployment is owner-only and Chrome reviewers must be able to open it without signing in.
+- **Privacy policy URL:** https://minotab.site/privacy.html
 
 ## Detailed description
 
@@ -31,9 +30,14 @@ Features:
 
 Mino is designed to be quiet, readable, and personal. Setup uses Google sign-in to create a private workspace that stays available across devices.
 
+## Version 1.2.1 update note
+
+- Clearer Chrome Web Store and website details, so it is easier to understand what Mino offers.
+- No changes to saved tasks, shortcuts, or appearance settings.
+
 ## Privacy practices submission
 
-Use the actual behavior of version 1.2.0 when completing the Privacy practices tab.
+Use the actual behavior of version 1.2.1 when completing the Privacy practices tab.
 
 | Data type | Handled? | Purpose | Stored/transmitted |
 | --- | --- | --- | --- |
@@ -64,7 +68,6 @@ For the dashboard declarations, state that Mino does **not** sell user data, use
 - [ ] Make the deployed Privacy policy URL publicly reachable for Chrome reviewers.
 - [ ] Verify the Google OAuth redirect URL in Supabase and Google Cloud for the production extension ID.
 - [ ] Capture current, unedited screenshots from Chrome after the final extension reload.
-- [x] Create the runtime-only ZIP for version 1.2.0: `release/mino-1.2.0.zip`.
-- [ ] Upload that ZIP to the Chrome Web Store Developer Dashboard.
+- [ ] Create the runtime-only ZIP for version 1.2.1 and upload it to the Chrome Web Store Developer Dashboard.
 - [ ] Complete the Privacy practices and Single purpose declarations to match the table above.
 - [ ] Submit first to the intended test audience, then review and publish.

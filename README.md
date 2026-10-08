@@ -1,4 +1,4 @@
-# Mino
+# Mino — Minimal New Tab
 
 Mino is a minimalist Chrome new-tab extension with a clock, calendar, daily todos, web search, shortcuts, and a private Supabase-backed workspace.
 
