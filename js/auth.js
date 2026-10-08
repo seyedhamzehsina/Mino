@@ -1,6 +1,8 @@
 const AuthModule = {
   session: null, // { access_token, refresh_token, expires_at, user: { id, email, name } }
+  accounts: [],
   refreshRetryTimer: null,
+  isSwitchingAccount: false,
 
   async init() {
     const btn = document.getElementById('auth-toggle');
@@ -10,6 +12,8 @@ const AuthModule = {
     });
     const signOutBtn = document.getElementById('auth-signout');
     if (signOutBtn) signOutBtn.addEventListener('click', () => this.signOut());
+    const addAccountBtn = document.getElementById('auth-add-account');
+    if (addAccountBtn) addAccountBtn.addEventListener('click', () => this.addGoogleAccount());
     document.addEventListener('click', (event) => {
       if (!(event.target instanceof Element) || !event.target.closest('.auth-account')) this.closeAccountMenu();
     });
@@ -19,12 +23,15 @@ const AuthModule = {
     window.addEventListener('online', () => this.retrySessionRefresh());
 
     await this.consumeRedirectHash();
+    this.accounts = (await StorageManager.get('authSessions') || []).filter(account => account?.user?.id && account?.refresh_token);
     this.session = await StorageManager.get('authSession') || null;
     if (this.session && this.session.access_token) {
       const refreshState = await this.ensureFreshToken();
       if (refreshState === 'invalid') {
+        const invalidUserId = this.session.user?.id;
         this.session = null;
         await StorageManager.set('authSession', null);
+        if (invalidUserId) await this.removeStoredAccount(invalidUserId);
       } else {
         // A network failure must never erase a valid saved session. The user
         // object is normally persisted with the token and lets us render the
@@ -34,7 +41,7 @@ const AuthModule = {
           this.session = null;
           await StorageManager.set('authSession', null);
         } else {
-          await StorageManager.set('authSession', this.session);
+          await this.persistCurrentSession({ reorder: false });
           if (refreshState === 'retry') this.scheduleSessionRetry();
         }
       }
@@ -72,6 +79,7 @@ const AuthModule = {
 
   async acceptSession(session) {
     if (!session?.access_token || !session?.refresh_token) return false;
+    const previousSession = this.session;
     this.session = {
       access_token: session.access_token,
       refresh_token: session.refresh_token,
@@ -80,13 +88,14 @@ const AuthModule = {
     };
     await this.fetchUser();
     if (!this.session.user) {
-      this.session = null;
-      await StorageManager.set('authSession', null);
+      this.session = previousSession;
       return false;
     }
-    await StorageManager.set('authSession', this.session);
+    await this.persistCurrentSession();
     this.render();
-    document.dispatchEvent(new CustomEvent('auth-session-changed', { detail: { type: 'sign-in' } }));
+    document.dispatchEvent(new CustomEvent('auth-session-changed', {
+      detail: { type: this.isSwitchingAccount ? 'account-switch' : 'sign-in' }
+    }));
     return true;
   },
 
@@ -95,6 +104,24 @@ const AuthModule = {
       apikey: SyncConfig.SUPABASE_ANON_KEY,
       Authorization: `Bearer ${this.session ? this.session.access_token : ''}`
     };
+  },
+
+  async persistCurrentSession({ reorder = true } = {}) {
+    if (!this.session?.user?.id) return;
+    const savedSession = {
+      ...this.session,
+      user: { ...this.session.user },
+      lastUsedAt: Date.now()
+    };
+    const otherAccounts = this.accounts.filter(account => account?.user?.id !== savedSession.user.id);
+    this.accounts = reorder ? [savedSession, ...otherAccounts] : [...otherAccounts, savedSession];
+    await StorageManager.set('authSessions', this.accounts);
+    await StorageManager.set('authSession', this.session);
+  },
+
+  async removeStoredAccount(userId) {
+    this.accounts = this.accounts.filter(account => account?.user?.id !== userId);
+    await StorageManager.set('authSessions', this.accounts);
   },
 
   async fetchUser() {
@@ -145,14 +172,16 @@ const AuthModule = {
     if (!this.session?.user) return;
     const refreshState = await this.ensureFreshToken();
     if (refreshState === 'ready') {
-      await StorageManager.set('authSession', this.session);
+      await this.persistCurrentSession({ reorder: false });
       document.dispatchEvent(new CustomEvent('auth-session-changed', { detail: { type: 'refresh' } }));
       return;
     }
     if (refreshState === 'retry') this.scheduleSessionRetry();
     if (refreshState === 'invalid') {
+      const invalidUserId = this.session.user?.id;
       this.session = null;
       await StorageManager.set('authSession', null);
+      if (invalidUserId) await this.removeStoredAccount(invalidUserId);
       if (typeof SyncModule !== 'undefined') await SyncModule.handleSignedOut();
       this.render();
     }
@@ -200,19 +229,20 @@ const AuthModule = {
       throw new Error('We could not save your profile. Check your Supabase profile policy and try again.');
     }
     this.session.user.name = name;
-    await StorageManager.set('authSession', this.session);
+    await this.persistCurrentSession({ reorder: false });
     this.render();
     ClockModule.updateSettings({ name });
     document.dispatchEvent(new Event('workspace-changed'));
   },
 
-  async signInWithGoogle() {
+  async signInWithGoogle({ selectAccount = false } = {}) {
     if (!SyncConfig.enabled) throw new Error('Account sync has not been configured yet.');
     if (!globalThis.chrome?.identity?.launchWebAuthFlow) throw new Error('Reload the extension and try again.');
     const redirect = globalThis.chrome.identity.getRedirectURL('supabase-auth');
     const authorizeUrl = new URL(`${SyncConfig.SUPABASE_URL}/auth/v1/authorize`);
     authorizeUrl.searchParams.set('provider', 'google');
     authorizeUrl.searchParams.set('redirect_to', redirect);
+    if (selectAccount) authorizeUrl.searchParams.set('prompt', 'select_account');
     try {
       const responseUrl = await new Promise((resolve, reject) => {
         chrome.identity.launchWebAuthFlow({ url: authorizeUrl.toString(), interactive: true }, (url) => {
@@ -243,12 +273,17 @@ const AuthModule = {
     if (!this.session?.user) return;
     const confirmed = await DialogModule.confirm({
       title: 'Sign out?',
-      message: 'Your account workspace will be hidden until you sign in again. Guest data on this device will be restored.',
+      message: 'Only this Google account will be signed out. Other accounts you added to Mino will stay available on this device.',
       confirmLabel: 'Sign out',
       destructive: true,
       kicker: 'Account'
     });
     if (!confirmed) return;
+    await this.clearSession();
+  },
+
+  async clearSession() {
+    const signedOutUserId = this.session?.user?.id;
     if (this.session) {
       try {
         await fetch(`${SyncConfig.SUPABASE_URL}/auth/v1/logout`, { method: 'POST', headers: this.authHeaders() });
@@ -256,6 +291,7 @@ const AuthModule = {
     }
     this.session = null;
     await StorageManager.set('authSession', null);
+    if (signedOutUserId) await this.removeStoredAccount(signedOutUserId);
     // Ensure account-scoped workspace data is removed before the signed-out
     // interface is shown; async event listeners alone cannot guarantee that.
     if (typeof SyncModule !== 'undefined') await SyncModule.handleSignedOut();
@@ -263,10 +299,61 @@ const AuthModule = {
     document.dispatchEvent(new CustomEvent('auth-session-changed', { detail: { type: 'sign-out-handled' } }));
   },
 
+  async addGoogleAccount() {
+    this.closeAccountMenu();
+    // Keep the active workspace until Google returns a successful additional
+    // session. Closing the chooser must leave the current account untouched.
+    this.isSwitchingAccount = true;
+    try {
+      await this.signInWithGoogle({ selectAccount: true });
+    } catch (error) {
+      console.error('Google account switch failed:', error);
+      if (!/closed|cancel|approve/i.test(error.message || '')) {
+        await DialogModule.notice({
+          title: 'Could not add account',
+          message: 'Choose a Google account and try again.',
+          kicker: 'Account'
+        });
+      }
+    } finally {
+      this.isSwitchingAccount = false;
+    }
+  },
+
+  async selectAccount(userId) {
+    const selectedSession = this.accounts.find(account => account?.user?.id === userId);
+    if (!selectedSession || selectedSession.user.id === this.session?.user?.id) {
+      this.closeAccountMenu();
+      return;
+    }
+    const previousSession = this.session;
+    this.closeAccountMenu();
+    this.session = {
+      ...selectedSession,
+      user: { ...selectedSession.user }
+    };
+    const refreshState = await this.ensureFreshToken();
+    if (refreshState === 'ready' && !this.session.user) await this.fetchUser();
+    if (refreshState !== 'ready' || !this.session.user) {
+      this.session = previousSession;
+      this.render();
+      if (refreshState === 'invalid') await this.removeStoredAccount(userId);
+      await DialogModule.notice({
+        title: 'Could not open account',
+        message: 'Sign in to this Google account again and try once more.',
+        kicker: 'Account'
+      });
+      return;
+    }
+    await this.persistCurrentSession();
+    this.render();
+    document.dispatchEvent(new CustomEvent('auth-session-changed', { detail: { type: 'account-switch' } }));
+  },
+
   toggleAccountMenu() {
     const menu = document.getElementById('auth-menu');
     const button = document.getElementById('auth-toggle');
-    if (!menu || !button || !this.session?.user) return;
+    if (!menu || !button || (!this.session?.user && !this.accounts.length)) return;
     if (menu.hidden) this.openAccountMenu();
     else this.closeAccountMenu();
   },
@@ -274,7 +361,7 @@ const AuthModule = {
   openAccountMenu() {
     const menu = document.getElementById('auth-menu');
     const button = document.getElementById('auth-toggle');
-    if (!menu || !button || !this.session?.user) return;
+    if (!menu || !button || (!this.session?.user && !this.accounts.length)) return;
     clearTimeout(this.accountMenuCloseTimer);
     menu.hidden = false;
     requestAnimationFrame(() => menu.classList.add('is-open'));
@@ -295,8 +382,8 @@ const AuthModule = {
     const btn = document.getElementById('auth-toggle');
     const signOutBtn = document.getElementById('auth-signout');
     const menu = document.getElementById('auth-menu');
-    const email = document.getElementById('auth-menu-email');
-    if (!btn || !signOutBtn || !menu || !email) return;
+    const accounts = document.getElementById('auth-accounts');
+    if (!btn || !signOutBtn || !menu || !accounts) return;
     if (!SyncConfig.enabled) {
       btn.hidden = true;
       menu.classList.remove('is-open');
@@ -304,19 +391,66 @@ const AuthModule = {
       return;
     }
     btn.hidden = false;
+    this.renderAccountList(accounts);
     if (this.session && this.session.user) {
       const initial = (this.session.user.name || this.session.user.email || '?').trim().charAt(0).toUpperCase();
       btn.textContent = initial;
       btn.classList.add('signed-in');
       btn.title = `Account menu for ${this.session.user.email}`;
-      email.textContent = this.session.user.email;
       signOutBtn.title = `Sign out from ${this.session.user.email}`;
+      signOutBtn.hidden = false;
     } else {
-      btn.textContent = 'Sign in';
-      btn.title = 'Sign in to your Mino account';
+      btn.textContent = this.accounts.length ? 'Accounts' : 'Sign in';
+      btn.title = this.accounts.length ? 'Choose a Mino account' : 'Sign in to your Mino account';
       btn.classList.remove('signed-in');
-      menu.hidden = true;
-      btn.setAttribute('aria-expanded', 'false');
+      signOutBtn.hidden = true;
+      if (!this.accounts.length) {
+        menu.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+      }
     }
+  },
+
+  renderAccountList(container) {
+    const activeUserId = this.session?.user?.id;
+    const orderedAccounts = [...this.accounts].sort((a, b) => {
+      if (a?.user?.id === activeUserId) return -1;
+      if (b?.user?.id === activeUserId) return 1;
+      return (b?.lastUsedAt || 0) - (a?.lastUsedAt || 0);
+    });
+    container.replaceChildren();
+    orderedAccounts.forEach((account) => {
+      const isActive = account.user.id === activeUserId;
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.className = `auth-account-option${isActive ? ' is-active' : ''}`;
+      option.setAttribute('role', 'menuitemradio');
+      option.setAttribute('aria-checked', String(isActive));
+      option.title = isActive ? `${account.user.email} (active)` : `Open ${account.user.email}`;
+      const avatar = document.createElement('span');
+      avatar.className = 'auth-account-avatar';
+      avatar.textContent = (account.user.name || account.user.email || '?').trim().charAt(0).toUpperCase();
+      const copy = document.createElement('span');
+      copy.className = 'auth-account-copy';
+      const name = document.createElement('span');
+      name.className = 'auth-account-name';
+      name.textContent = account.user.name || account.user.email || 'Google account';
+      const email = document.createElement('span');
+      email.className = 'auth-account-email';
+      email.textContent = account.user.email || '';
+      copy.append(name, email);
+      option.append(avatar, copy);
+      if (isActive) {
+        const active = document.createElement('span');
+        active.className = 'auth-account-active';
+        active.textContent = '✓';
+        active.setAttribute('aria-label', 'Active account');
+        option.append(active);
+      } else {
+        option.append(document.createElement('span'));
+        option.addEventListener('click', () => this.selectAccount(account.user.id));
+      }
+      container.append(option);
+    });
   }
 };

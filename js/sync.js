@@ -74,18 +74,30 @@ const SyncModule = {
       this.accountTransitioning = true;
       this.guestSnapshotPromise = this.captureGuestWorkspace();
       await this.guestSnapshotPromise;
-      if (!this.isCurrentUser(userId)) return;
+      if (!this.isCurrentUser(userId)) {
+        this.accountTransitioning = false;
+        return;
+      }
       this.accountTransitioning = false;
     }
-    if (this.syncUserId && this.syncUserId !== userId) {
-      // Local data remains on this device, but pending changes from another
-      // account must never be uploaded into the newly signed-in account.
+    const isDifferentAccount = !!this.syncUserId && this.syncUserId !== userId;
+    if (reason === 'sign-in' || reason === 'account-switch' || isDifferentAccount) {
+      // Never let the visible workspace from a guest or another account be
+      // written into this account while its own server workspace is loading.
+      // For a new account this also gives it a clean, independent default.
+      this.accountTransitioning = true;
+      await this.prepareAccountWorkspace();
+      if (!this.isCurrentUser(userId)) {
+        this.accountTransitioning = false;
+        return;
+      }
+      this.accountTransitioning = false;
+    }
+    if (isDifferentAccount) {
+      // Pending todo changes from another account must never be uploaded into
+      // the newly selected account.
       this.lastSyncAt = null;
       this.tombstones = [];
-      Object.values(TodoModule.todosByDate).forEach(todos => {
-        (todos || []).forEach(todo => { delete todo.dirty; });
-      });
-      await TodoModule.save();
       await StorageManager.set('lastSyncAt', null);
       await StorageManager.set('syncTombstones', []);
     }
@@ -95,6 +107,29 @@ const SyncModule = {
     await this.push();
     await this.pullWorkspace();
     await this.pushWorkspace();
+  },
+
+  async prepareAccountWorkspace() {
+    ShortcutsModule.shortcuts = ShortcutsModule.getDefaultShortcuts();
+    await StorageManager.set('shortcuts', ShortcutsModule.shortcuts);
+    ShortcutsModule.render();
+
+    TodoModule.todosByDate = {};
+    await StorageManager.set('todosByDate', TodoModule.todosByDate);
+    TodoModule.render();
+    CalendarModule.render();
+
+    SettingsModule.settings = {
+      ...SettingsModule.defaults,
+      background: { ...SettingsModule.defaults.background }
+    };
+    await StorageManager.set('appearanceSettings', SettingsModule.settings);
+    SettingsModule.apply();
+    SettingsModule.refreshGradientSwatches();
+
+    ClockModule.settings = { ...ClockModule.defaults };
+    await StorageManager.set('clockSettings', ClockModule.settings);
+    ClockModule.updateTime();
   },
 
   async handleSignedOut() {

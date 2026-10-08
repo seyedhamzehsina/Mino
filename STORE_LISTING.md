@@ -30,14 +30,14 @@ Features:
 
 Mino is designed to be quiet, readable, and personal. Setup uses Google sign-in to create a private workspace that stays available across devices.
 
-## Version 1.2.1 update note
+## Version 1.2.2 update note
 
+- Add more than one Google account from the profile menu, then open each saved Mino workspace from one account list.
 - Clearer Chrome Web Store and website details, so it is easier to understand what Mino offers.
-- No changes to saved tasks, shortcuts, or appearance settings.
 
 ## Privacy practices submission
 
-Use the actual behavior of version 1.2.1 when completing the Privacy practices tab.
+Use the actual behavior of version 1.2.2 when completing the Privacy practices tab.
 
 | Data type | Handled? | Purpose | Stored/transmitted |
 | --- | --- | --- | --- |
@@ -68,6 +68,6 @@ For the dashboard declarations, state that Mino does **not** sell user data, use
 - [ ] Make the deployed Privacy policy URL publicly reachable for Chrome reviewers.
 - [ ] Verify the Google OAuth redirect URL in Supabase and Google Cloud for the production extension ID.
 - [ ] Capture current, unedited screenshots from Chrome after the final extension reload.
-- [ ] Create the runtime-only ZIP for version 1.2.1 and upload it to the Chrome Web Store Developer Dashboard.
+- [ ] Create the runtime-only ZIP for version 1.2.2 and upload it to the Chrome Web Store Developer Dashboard.
 - [ ] Complete the Privacy practices and Single purpose declarations to match the table above.
 - [ ] Submit first to the intended test audience, then review and publish.

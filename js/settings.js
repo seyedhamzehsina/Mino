@@ -1,4 +1,5 @@
 const SettingsModule = {
+  defaults: { theme: 'light', accent: '#ff7a59', glassOpacity: 62, glassBlur: 18, lastGradient: 'sunset', background: { type: 'gradient', value: 'sunset' } },
   settings: { theme: 'light', accent: '#ff7a59', glassOpacity: 62, glassBlur: 18, lastGradient: 'sunset', background: { type: 'gradient', value: 'sunset' } },
   contrastResizeTimer: null,
   contrastImage: null,

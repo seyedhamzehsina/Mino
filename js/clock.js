@@ -1,4 +1,5 @@
 const ClockModule = {
+  defaults: { clock24: true, showSeconds: false, name: '' },
   settings: { clock24: true, showSeconds: false, name: '' },
   timer: null,
   lastDayKey: null,

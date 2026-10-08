@@ -231,12 +231,23 @@ body.dark .date {
 }
 
 .auth-account { position: relative; }
-.auth-menu { position: absolute; z-index: 30; top: calc(100% + var(--space-2)); right: 0; width: 216px; padding: var(--space-2); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card-bg); box-shadow: var(--shadow-float); opacity: 0; transform: translateY(-8px) scale(.98); transform-origin: top right; visibility: hidden; pointer-events: none; transition: opacity 200ms ease, transform var(--motion-panel), visibility 0s linear 240ms; will-change: opacity, transform; }
+.auth-menu { position: absolute; z-index: 30; top: calc(100% + var(--space-2)); right: 0; width: 244px; padding: var(--space-2); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card-bg); box-shadow: var(--shadow-float); opacity: 0; transform: translateY(-8px) scale(.98); transform-origin: top right; visibility: hidden; pointer-events: none; transition: opacity 200ms ease, transform var(--motion-panel), visibility 0s linear 240ms; will-change: opacity, transform; }
 .auth-menu.is-open { opacity: 1; transform: none; visibility: visible; pointer-events: auto; transition-delay: 0s; }
 .auth-menu[hidden] { display: none; }
-.auth-menu-email { overflow: hidden; margin: var(--space-1) var(--space-2) var(--space-2); color: var(--text-muted); font-size: 12px; line-height: 1.4; text-overflow: ellipsis; white-space: nowrap; }
-.auth-menu-signout { width: 100%; height: 36px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text); cursor: pointer; font-size: 13px; text-align: left; padding: 0 var(--space-2); transition: background var(--motion-fast), color var(--motion-fast); }
-.auth-menu-signout:hover, .auth-menu-signout:focus-visible { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); outline: none; }
+.auth-accounts { display: grid; gap: 3px; margin-bottom: var(--space-1); }
+.auth-account-option { display: grid; grid-template-columns: 30px minmax(0, 1fr) 16px; align-items: center; gap: var(--space-2); width: 100%; min-height: 52px; padding: 7px var(--space-2); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text); cursor: pointer; text-align: left; transition: background var(--motion-fast); }
+.auth-account-option:hover, .auth-account-option:focus-visible { background: color-mix(in srgb, var(--accent) 12%, transparent); outline: none; }
+.auth-account-option.is-active { background: color-mix(in srgb, var(--accent) 10%, transparent); cursor: default; }
+.auth-account-avatar { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--accent) 18%, var(--card-bg)); color: var(--accent); font-size: 12px; font-weight: 700; }
+.auth-account-copy { min-width: 0; }
+.auth-account-name, .auth-account-email { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.auth-account-name { font-size: 12px; font-weight: 650; }
+.auth-account-email { margin-top: 2px; color: var(--text-muted); font-size: 11px; }
+.auth-account-active { color: var(--accent); font-size: 13px; font-weight: 700; }
+.auth-menu-action, .auth-menu-signout { width: 100%; height: 36px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text); cursor: pointer; font-size: 13px; text-align: left; padding: 0 var(--space-2); transition: background var(--motion-fast), color var(--motion-fast); }
+.auth-menu-action:hover, .auth-menu-action:focus-visible, .auth-menu-signout:hover, .auth-menu-signout:focus-visible { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); outline: none; }
+.auth-add-account { border-top: 1px solid var(--border); margin-top: var(--space-1); padding-top: 1px; }
+.auth-menu-signout { margin-top: 3px; color: var(--text-muted); }
 
 .settings-panel {
   position: fixed;
