@@ -1,5 +1,10 @@
 const ReleaseNotesModule = {
   releases: {
+    '1.2.3': {
+      kicker: 'What’s new',
+      title: 'Search, on your terms',
+      message: 'Mino search now uses the search provider you selected in Chrome. It can suggest your own shortcuts locally, without sending suggestion requests.'
+    },
     '1.2.2': {
       kicker: 'What’s new',
       title: 'Use more than one Google account',
@@ -12,7 +17,7 @@ const ReleaseNotesModule = {
     // release note once, on their first new-tab view after an update.
     if (!await StorageManager.get('onboardingCompleted')) return;
 
-    const version = globalThis.chrome?.runtime?.getManifest?.().version || '1.2.2';
+    const version = globalThis.chrome?.runtime?.getManifest?.().version || '1.2.3';
     const seenVersion = await StorageManager.get('releaseNotesSeenVersion');
     if (seenVersion === version) return;
 

@@ -1,17 +1,16 @@
 {
   "manifest_version": 3,
   "name": "Mino — Minimal New Tab",
-  "version": "1.2.2",
-  "description": "A calm new tab with todos, calendar, search, shortcuts, and private workspace sync.",
+  "version": "1.2.3",
+  "description": "A calm, personal new tab with todos, calendar, shortcuts, and private workspace sync.",
   "homepage_url": "https://minotab.site",
   "icons": {
     "16": "assets/icons/icon-16.png",
     "48": "assets/icons/icon-48.png",
     "128": "assets/icons/icon-128.png"
   },
-  "permissions": ["storage", "identity"],
+  "permissions": ["storage", "identity", "search"],
   "host_permissions": [
-    "https://suggestqueries.google.com/*",
     "https://*.supabase.co/*"
   ],
   "chrome_url_overrides": {

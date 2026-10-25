@@ -7,7 +7,7 @@ This file is the ready-to-paste source for the Chrome Web Store Developer Dashbo
 - **Name:** Mino — Minimal New Tab
 - **Category:** Productivity
 - **Primary language:** English
-- **Short description:** A calm new tab with todos, calendar, search, shortcuts, and private workspace sync.
+- **Short description:** A calm, personal new tab with todos, calendar, shortcuts, and private workspace sync.
 - **Official URL:** https://minotab.site
 - **Support URL:** https://github.com/seyedhamzehsina/Mino/issues
 - **Privacy policy URL:** https://minotab.site/privacy.html
@@ -16,35 +16,36 @@ This file is the ready-to-paste source for the Chrome Web Store Developer Dashbo
 
 Mino turns every new tab into a calm, focused workspace.
 
-Keep the essentials visible without opening another app: a clear clock and greeting, a daily todo list, a clickable calendar, web search, and your most-used shortcuts. Calendar and todo panels stay out of the way until you choose to open them.
+Keep the essentials visible without opening another app: a clear clock and greeting, a daily todo list, a clickable calendar, search through your Chrome-selected provider, and your most-used shortcuts. Calendar and todo panels stay out of the way until you choose to open them.
 
 Features:
 
 - Add, edit, complete, and remove tasks for any day.
 - Open a date in the calendar to view that day’s tasks.
 - Use Gregorian or Persian calendar display.
-- Search the web or open a URL directly from the new-tab page.
+- Search with the provider selected in Chrome; Mino does not select or modify the provider.
 - Add and remove shortcuts for the sites you use most.
 - Personalize the accent color, light or dark mode, liquid-glass appearance, clock settings, and background.
 - Sign in with Google to create a private workspace and synchronize todos, shortcuts, clock preferences, and appearance settings through the configured Supabase project.
 
 Mino is designed to be quiet, readable, and personal. Setup uses Google sign-in to create a private workspace that stays available across devices.
 
-## Version 1.2.2 update note
+## Version 1.2.3 update note
 
+- Search now uses the user’s Chrome-selected search provider through Chrome’s Search API; matching personal shortcuts can be suggested locally without sending suggestion requests or redirecting queries.
 - Add more than one Google account from the profile menu, then open each saved Mino workspace from one account list.
 - Clearer Chrome Web Store and website details, so it is easier to understand what Mino offers.
 
 ## Privacy practices submission
 
-Use the actual behavior of version 1.2.2 when completing the Privacy practices tab.
+Use the actual behavior of version 1.2.3 when completing the Privacy practices tab.
 
 | Data type | Handled? | Purpose | Stored/transmitted |
 | --- | --- | --- | --- |
 | Personally identifiable information | Yes: verified Google email address, account identifier, display name | Authenticate the account and show signed-in state | Received through Supabase authentication; retained locally for the session |
 | User-generated content | Yes: todo text, completion state, date, shortcuts, clock preferences, and appearance settings | Provide the workspace and multi-device sync | Stored in Chrome extension storage and synchronized to Supabase for the authenticated account |
 | Website URLs | Yes: user-entered shortcut URLs | Open user-created shortcuts and request their favicons | Stored locally; favicon request is sent to Google only when a shortcut is displayed |
-| Search queries | Yes, only when typed into search | Show search suggestions and perform the user-requested search | Suggestions are requested from Google; submitted searches open Google Search |
+| Search queries | No | Mino passes the user’s submitted query to Chrome’s Search API | Chrome sends the query to the provider selected by the user, under Chrome’s existing settings; Mino does not collect or send it |
 
 For the dashboard declarations, state that Mino does **not** sell user data, use it for advertising, transfer it for unrelated purposes, or use it to determine creditworthiness or for lending purposes.
 
@@ -52,7 +53,7 @@ For the dashboard declarations, state that Mino does **not** sell user data, use
 
 - `storage`: saves todos, settings, shortcut details, and the account session in Chrome extension storage.
 - `identity`: opens the user-initiated Google sign-in flow for workspace authentication.
-- `https://suggestqueries.google.com/*`: retrieves search suggestions only while the user types in Mino’s search field.
+- `search`: submits a user-initiated query through the Chrome search provider selected by the user.
 - `https://*.supabase.co/*`: authenticates the user with Google and synchronizes their private workspace with the configured Supabase project.
 
 ## Graphic assets
@@ -68,6 +69,6 @@ For the dashboard declarations, state that Mino does **not** sell user data, use
 - [ ] Make the deployed Privacy policy URL publicly reachable for Chrome reviewers.
 - [ ] Verify the Google OAuth redirect URL in Supabase and Google Cloud for the production extension ID.
 - [ ] Capture current, unedited screenshots from Chrome after the final extension reload.
-- [ ] Create the runtime-only ZIP for version 1.2.2 and upload it to the Chrome Web Store Developer Dashboard.
+- [ ] Create the runtime-only ZIP for version 1.2.3 and upload it to the Chrome Web Store Developer Dashboard.
 - [ ] Complete the Privacy practices and Single purpose declarations to match the table above.
 - [ ] Submit first to the intended test audience, then review and publish.

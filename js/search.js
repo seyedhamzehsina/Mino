@@ -1,101 +1,124 @@
 const SearchModule = {
   suggestions: [],
   activeIndex: -1,
-  dropdown: null,
-  input: null,
-  abortController: null,
-  suggestionTimer: null,
+
   init() {
-    this.input = document.getElementById('search-input');
-    this.dropdown = document.createElement('div');
-    this.dropdown.className = 'search-suggestions';
-    this.dropdown.hidden = true;
-    document.getElementById('search-form').appendChild(this.dropdown);
+    const form = document.getElementById('search-form');
+    const input = document.getElementById('search-input');
+    if (!form || !input) return;
 
-    document.getElementById('search-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (this.activeIndex >= 0 && this.suggestions[this.activeIndex]) {
-        this.input.value = this.suggestions[this.activeIndex];
+    const dropdown = document.createElement('div');
+    dropdown.id = 'search-suggestions';
+    dropdown.className = 'search-suggestions';
+    dropdown.setAttribute('role', 'listbox');
+    dropdown.hidden = true;
+    form.appendChild(dropdown);
+    this.input = input;
+    this.dropdown = dropdown;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const selected = this.suggestions[this.activeIndex];
+      if (selected) {
+        this.openShortcut(selected);
+        return;
       }
-      this.search(this.input.value.trim());
+      await this.searchWithDefaultProvider(input.value.trim());
     });
 
-    this.input.addEventListener('input', () => {
-      clearTimeout(this.suggestionTimer);
-      this.suggestionTimer = setTimeout(() => this.fetchSuggestions(), 120);
-    });
-    this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
-    this.input.addEventListener('blur', () => setTimeout(() => this.hide(), 150));
+    input.addEventListener('input', () => this.renderSuggestions());
+    input.addEventListener('keydown', (event) => this.handleKeydown(event));
+    input.addEventListener('blur', () => setTimeout(() => this.hideSuggestions(), 150));
   },
-  search(query) {
+
+  async searchWithDefaultProvider(query) {
     if (!query) return;
-    const isUrl = /^(https?:\/\/)?([\w-]+\.)+[a-z]{2,}(\/\S*)?$/i.test(query);
-    const url = isUrl
-      ? (query.startsWith('http') ? query : 'https://' + query)
-      : `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-    window.location.href = url;
-  },
-  handleKeydown(e) {
-    if (this.dropdown.hidden || !this.suggestions.length) return;
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      this.activeIndex = (this.activeIndex + 1) % this.suggestions.length;
-      this.highlight();
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      this.activeIndex = (this.activeIndex - 1 + this.suggestions.length) % this.suggestions.length;
-      this.highlight();
-    } else if (e.key === 'Escape') {
-      this.hide();
-    }
-  },
-  highlight() {
-    this.dropdown.querySelectorAll('.suggestion-item').forEach((el, i) => {
-      el.classList.toggle('active', i === this.activeIndex);
-    });
-  },
-  async fetchSuggestions() {
-    const query = this.input.value.trim();
-    this.activeIndex = -1;
-    if (!query) { this.hide(); return; }
-    if (this.abortController) this.abortController.abort();
-    this.abortController = new AbortController();
     try {
-      const res = await fetch(
-        `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(query)}`,
-        { signal: this.abortController.signal }
-      );
-      const data = await res.json();
-      if (this.input.value.trim() !== query) return;
-      this.suggestions = (data[1] || []).slice(0, 8);
-      this.render();
-    } catch (err) {
-      if (err.name !== 'AbortError') this.hide();
+      // Respect the provider selected by the user in Chrome. Mino never
+      // chooses a provider, redirects web searches, or fetches suggestions.
+      await chrome.search.query({ text: query, disposition: 'CURRENT_TAB' });
+    } catch (error) {
+      console.error('Default-provider search failed:', error);
     }
   },
-  render() {
-    this.dropdown.innerHTML = '';
-    if (!this.suggestions.length) { this.hide(); return; }
-    this.suggestions.forEach((s, i) => {
-      const item = document.createElement('div');
+
+  getShortcutSuggestions(query) {
+    const normalized = query.trim().toLocaleLowerCase();
+    if (!normalized || typeof ShortcutsModule === 'undefined') return [];
+    return (ShortcutsModule.shortcuts || [])
+      .filter(shortcut => `${shortcut.name || ''} ${shortcut.url || ''}`.toLocaleLowerCase().includes(normalized))
+      .slice(0, 6);
+  },
+
+  renderSuggestions() {
+    this.suggestions = this.getShortcutSuggestions(this.input.value);
+    this.activeIndex = -1;
+    this.dropdown.replaceChildren();
+    if (!this.suggestions.length) {
+      this.hideSuggestions();
+      return;
+    }
+    this.suggestions.forEach((shortcut, index) => {
+      const item = document.createElement('button');
+      item.type = 'button';
       item.className = 'suggestion-item';
+      item.setAttribute('role', 'option');
+      item.setAttribute('aria-selected', 'false');
       const icon = document.createElement('span');
       icon.className = 'suggestion-icon';
-      icon.textContent = '🔍';
-      const text = document.createElement('span');
-      text.textContent = s;
-      item.appendChild(icon);
-      item.appendChild(text);
-      item.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        this.search(s);
+      icon.textContent = '↗';
+      const copy = document.createElement('span');
+      copy.className = 'suggestion-copy';
+      const name = document.createElement('span');
+      name.className = 'suggestion-name';
+      name.textContent = shortcut.name;
+      const url = document.createElement('span');
+      url.className = 'suggestion-url';
+      url.textContent = shortcut.url;
+      copy.append(name, url);
+      item.append(icon, copy);
+      item.addEventListener('mousedown', (event) => {
+        event.preventDefault();
+        this.activeIndex = index;
+        this.openShortcut(shortcut);
       });
       this.dropdown.appendChild(item);
     });
     this.dropdown.hidden = false;
+    this.input.setAttribute('aria-expanded', 'true');
   },
-  hide() {
+
+  handleKeydown(event) {
+    if (this.dropdown.hidden || !this.suggestions.length) return;
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.activeIndex = (this.activeIndex + 1) % this.suggestions.length;
+      this.highlightSuggestion();
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      this.activeIndex = (this.activeIndex - 1 + this.suggestions.length) % this.suggestions.length;
+      this.highlightSuggestion();
+    } else if (event.key === 'Escape') {
+      this.hideSuggestions();
+    }
+  },
+
+  highlightSuggestion() {
+    this.dropdown.querySelectorAll('.suggestion-item').forEach((item, index) => {
+      const active = index === this.activeIndex;
+      item.classList.toggle('active', active);
+      item.setAttribute('aria-selected', String(active));
+    });
+  },
+
+  openShortcut(shortcut) {
+    if (!shortcut?.url) return;
+    window.location.assign(shortcut.url);
+  },
+
+  hideSuggestions() {
     this.dropdown.hidden = true;
+    this.input?.setAttribute('aria-expanded', 'false');
     this.activeIndex = -1;
   }
 };
