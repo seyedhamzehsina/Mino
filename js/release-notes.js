@@ -2,8 +2,8 @@ const ReleaseNotesModule = {
   releases: {
     '1.2.3': {
       kicker: 'What’s new',
-      title: 'Search, on your terms',
-      message: 'Mino search now uses the search provider you selected in Chrome. It can suggest your own shortcuts locally, without sending suggestion requests.'
+      title: 'More clarity, without more clutter',
+      message: 'Browse previous and upcoming months, check a weekly task report, and search with the provider selected in Chrome. Shortcut suggestions stay local and appear only when there is a match.'
     },
     '1.2.2': {
       kicker: 'What’s new',

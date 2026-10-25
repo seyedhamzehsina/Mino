@@ -49,6 +49,7 @@
           <button id="todo-today-btn" class="todo-date-label" title="Back to today"><span id="todo-date-label">Today</span></button>
           <button id="todo-next-day" class="day-nav" title="Next day">›</button>
           <button id="todo-next-open" class="todo-next-open" type="button" title="Next day with open tasks" aria-label="Next day with open tasks"><span>Next open</span><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M4 10h11"/><path d="m11 6 4 4-4 4"/></svg></button>
+          <button id="todo-weekly-report" class="todo-weekly-report" type="button" title="Weekly task report" aria-label="Weekly task report"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 15 4-4 3 2 5-6"/></svg></button>
           <button id="todo-clear" class="todo-clear-btn" title="Clear all tasks for this day">Clear all</button>
         </div>
           <ul id="todo-list" class="todo-list"></ul>
@@ -73,7 +74,11 @@
         <summary class="collapsible-summary"><span>Calendar</span><span class="panel-chevron" aria-hidden="true"><svg viewBox="0 0 20 20" focusable="false"><path d="m6.5 8 3.5 4 3.5-4"/></svg></span></summary>
         <div class="collapsible-content">
           <div class="collapsible-inner">
-          <div class="card-header"><span id="calendar-month-year"></span></div>
+          <div class="card-header calendar-header">
+            <button id="calendar-prev-month" class="calendar-nav" type="button" title="Previous month" aria-label="Previous month">‹</button>
+            <span id="calendar-month-year" aria-live="polite"></span>
+            <button id="calendar-next-month" class="calendar-nav" type="button" title="Next month" aria-label="Next month">›</button>
+          </div>
           <div id="calendar-grid" class="calendar-grid"></div>
           </div>
         </div>

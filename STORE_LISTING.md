@@ -32,6 +32,9 @@ Mino is designed to be quiet, readable, and personal. Setup uses Google sign-in 
 
 ## Version 1.2.3 update note
 
+- Browse previous and upcoming Gregorian or Persian calendar months directly from the calendar.
+- Open a weekly task report to see tasks added, completed, and the average completion time for newly tracked tasks.
+- Fix an empty search-suggestion outline from appearing below the search field.
 - Search now uses the user’s Chrome-selected search provider through Chrome’s Search API; matching personal shortcuts can be suggested locally without sending suggestion requests or redirecting queries.
 - Add more than one Google account from the profile menu, then open each saved Mino workspace from one account list.
 - Clearer Chrome Web Store and website details, so it is easier to understand what Mino offers.

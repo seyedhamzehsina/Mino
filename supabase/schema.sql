@@ -21,8 +21,14 @@ create table if not exists public.todos (
   done boolean not null default false,
   deleted boolean not null default false,
   assigned_to uuid references auth.users on delete set null, -- phase 2
+  created_at timestamptz,
+  completed_at timestamptz,
   updated_at timestamptz not null default now()
 );
+-- Timestamps introduced for the weekly task report. Existing tasks stay null,
+-- so reports never invent a historical completion duration.
+alter table public.todos add column if not exists created_at timestamptz;
+alter table public.todos add column if not exists completed_at timestamptz;
 create index if not exists todos_user_updated_idx on public.todos (user_id, updated_at);
 create index if not exists todos_assigned_idx on public.todos (assigned_to, updated_at);
 
@@ -49,6 +55,13 @@ create policy "own todos" on public.todos
 drop policy if exists "own settings" on public.settings;
 create policy "own settings" on public.settings
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- 4b) Data API grants. Keep these alongside every public table's RLS policy.
+-- Mino only reads/writes workspace data for signed-in users; anon receives no
+-- data-table access. RLS above still limits each user to their own rows.
+grant usage on schema public to authenticated, service_role;
+grant select, insert, update, delete on table public.profiles, public.todos, public.settings
+  to authenticated, service_role;
 
 -- 5) Auto-create a profile on signup
 create or replace function public.handle_new_user()
@@ -126,3 +139,10 @@ create or replace view public.queens_all_time_leaderboard as
   from public.queens_scores
   group by username;
 grant select on public.queens_all_time_leaderboard to authenticated;
+
+-- Explicit grants are required for newly created public tables after Supabase
+-- turns off automatic Data API exposure. Add matching least-privilege grants
+-- here whenever a future table or view is introduced.
+grant select, insert, update on table public.queens_scores to authenticated, service_role;
+grant select on table public.queens_leaderboard, public.queens_weekly_leaderboard, public.queens_all_time_leaderboard
+  to authenticated, service_role;

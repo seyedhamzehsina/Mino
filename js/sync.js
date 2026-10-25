@@ -278,6 +278,8 @@ const SyncModule = {
               text: t.text,
               done: !!t.done,
               deleted: false,
+              created_at: Number.isFinite(t.created_at) ? new Date(t.created_at).toISOString() : null,
+              completed_at: Number.isFinite(t.completed_at) ? new Date(t.completed_at).toISOString() : null,
               updated_at: new Date(t.updated_at || Date.now()).toISOString()
             });
             touched.push(t);
@@ -343,7 +345,14 @@ const SyncModule = {
         // Never overwrite a locally-edited (dirty) todo — it will be pushed soon.
         if (local && local.dirty) return;
         if (!local || Date.parse(row.updated_at) > (local.updated_at || 0)) {
-          const todo = { id: row.id, text: row.text, done: !!row.done, updated_at: Date.parse(row.updated_at) };
+          const todo = {
+            id: row.id,
+            text: row.text,
+            done: !!row.done,
+            created_at: row.created_at ? Date.parse(row.created_at) : undefined,
+            completed_at: row.completed_at ? Date.parse(row.completed_at) : undefined,
+            updated_at: Date.parse(row.updated_at)
+          };
           const arr = TodoModule.todosByDate[row.date_key] = TodoModule.todosByDate[row.date_key] || [];
           const i = local ? arr.findIndex(t => t.id === row.id) : -1;
           if (i >= 0) arr[i] = todo;

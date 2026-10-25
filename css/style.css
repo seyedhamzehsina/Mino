@@ -458,6 +458,7 @@ body.dark .date {
   background: var(--card-bg);
   box-shadow: var(--shadow-float);
 }
+.search-suggestions[hidden] { display: none; }
 
 .suggestion-item {
   display: flex;
@@ -823,6 +824,42 @@ body.dark .date {
   display: none;
 }
 
+.todo-weekly-report {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.todo-weekly-report svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.todo-weekly-report:hover,
+.todo-weekly-report:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
+  background: color-mix(in srgb, var(--accent) 9%, var(--card-bg));
+  color: var(--accent);
+  outline: none;
+}
+
+.todo-card:not([open]) .todo-weekly-report {
+  display: none;
+}
+
 .todo-clear-btn {
   margin-left: auto;
   border: none;
@@ -842,6 +879,25 @@ body.dark .date {
 }
 
 /* ---------- Calendar ---------- */
+.calendar-header { justify-content: space-between; }
+.calendar-nav {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 20px;
+  line-height: 1;
+  transition: color var(--motion-fast), background var(--motion-fast);
+}
+.calendar-nav:hover,
+.calendar-nav:focus-visible { background: var(--input-bg); color: var(--accent); outline: none; }
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);

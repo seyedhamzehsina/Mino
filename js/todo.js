@@ -12,7 +12,9 @@ const TodoModule = {
       await StorageManager.set('todos', null);
     }
     this.selectedDate = this.todayKey();
-    // migrate ids to UUIDs + ensure updated_at, so todos are sync-ready
+    // Migrate ids + timestamps so todos are sync-ready. We intentionally do
+    // not infer created_at for existing tasks: it would make time-to-complete
+    // reports look precise when that historical information does not exist.
     let migrated = false;
     Object.values(this.todosByDate).forEach(todos => {
       (todos || []).forEach(t => {
@@ -30,6 +32,7 @@ const TodoModule = {
     document.getElementById('todo-prev-day').addEventListener('click', () => this.shiftDay(-1));
     document.getElementById('todo-next-day').addEventListener('click', () => this.shiftDay(1));
     document.getElementById('todo-next-open').addEventListener('click', () => this.goToNextOpenDay());
+    document.getElementById('todo-weekly-report').addEventListener('click', () => this.showWeeklyReport());
     document.getElementById('todo-today-btn').addEventListener('click', () => this.selectDate(this.todayKey()));
     document.addEventListener('date-selected', (e) => this.selectDate(e.detail));
     document.addEventListener('day-changed', () => this.updateCollapsedReminder());
@@ -63,7 +66,8 @@ const TodoModule = {
     const input = document.getElementById('todo-input');
     const text = input.value.trim();
     if (!text) return;
-    this.todos = [...this.todos, { id: crypto.randomUUID(), text, done: false, updated_at: Date.now(), dirty: true }];
+    const now = Date.now();
+    this.todos = [...this.todos, { id: crypto.randomUUID(), text, done: false, created_at: now, updated_at: now, dirty: true }];
     input.value = '';
     await this.save();
     this.render();
@@ -72,7 +76,15 @@ const TodoModule = {
     list.scrollTop = list.scrollHeight;
   },
   async toggleTodo(id) {
-    this.todos = this.todos.map(t => t.id === id ? { ...t, done: !t.done, updated_at: Date.now(), dirty: true } : t);
+    const now = Date.now();
+    this.todos = this.todos.map(t => {
+      if (t.id !== id) return t;
+      const done = !t.done;
+      const next = { ...t, done, updated_at: now, dirty: true };
+      if (done) next.completed_at = now;
+      else delete next.completed_at;
+      return next;
+    });
     await this.save();
     this.render();
     this.notifyCalendar();
@@ -119,6 +131,45 @@ const TodoModule = {
     if (!dates.length) return;
     const next = dates.find(key => key > this.selectedDate) || dates[0];
     this.selectDate(next);
+  },
+  weekRange(now = new Date()) {
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const mondayOffset = (start.getDay() + 6) % 7;
+    start.setDate(start.getDate() - mondayOffset);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 7);
+    return { start, end };
+  },
+  formatDuration(milliseconds) {
+    const totalMinutes = Math.max(0, Math.round(milliseconds / 60000));
+    const days = Math.floor(totalMinutes / 1440);
+    const hours = Math.floor((totalMinutes % 1440) / 60);
+    const minutes = totalMinutes % 60;
+    if (days) return `${days}d ${hours}h`;
+    if (hours) return `${hours}h ${minutes}m`;
+    return `${minutes}m`;
+  },
+  async showWeeklyReport() {
+    const { start, end } = this.weekRange();
+    const startAt = start.getTime();
+    const endAt = end.getTime();
+    const tasks = Object.values(this.todosByDate).flat();
+    const created = tasks.filter(task => Number.isFinite(task.created_at) && task.created_at >= startAt && task.created_at < endAt);
+    const completed = tasks.filter(task => Number.isFinite(task.completed_at) && task.completed_at >= startAt && task.completed_at < endAt);
+    const trackedDurations = completed
+      .filter(task => Number.isFinite(task.created_at) && task.completed_at >= task.created_at)
+      .map(task => task.completed_at - task.created_at);
+    const average = trackedDurations.length
+      ? this.formatDuration(trackedDurations.reduce((sum, duration) => sum + duration, 0) / trackedDurations.length)
+      : 'Not enough tracked completions yet';
+    const range = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const rangeEnd = new Date(endAt - 1).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    await DialogModule.notice({
+      kicker: 'Weekly report',
+      title: `${range} – ${rangeEnd}`,
+      message: `Added: ${created.length} task${created.length === 1 ? '' : 's'} · Completed: ${completed.length} task${completed.length === 1 ? '' : 's'} · Average time to complete: ${average}`,
+      label: 'Done'
+    });
   },
   updateOpenDayControl() {
     const button = document.getElementById('todo-next-open');
