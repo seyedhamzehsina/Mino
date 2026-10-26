@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Mino — Minimal New Tab",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "A calm, personal new tab with todos, calendar, shortcuts, and private workspace sync.",
   "homepage_url": "https://minotab.site",
   "icons": {
