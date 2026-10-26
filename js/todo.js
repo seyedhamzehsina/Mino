@@ -1,6 +1,8 @@
 const TodoModule = {
   todosByDate: {},
   selectedDate: null,
+  reportWeekOffset: 0,
+  reportTransitioning: false,
   async init() {
     // migrate legacy single-day list
     const legacy = await StorageManager.get('todos');
@@ -32,7 +34,14 @@ const TodoModule = {
     document.getElementById('todo-prev-day').addEventListener('click', () => this.shiftDay(-1));
     document.getElementById('todo-next-day').addEventListener('click', () => this.shiftDay(1));
     document.getElementById('todo-next-open').addEventListener('click', () => this.goToNextOpenDay());
-    document.getElementById('todo-weekly-report').addEventListener('click', () => this.showWeeklyReport());
+    document.getElementById('weekly-report-toggle').addEventListener('click', () => this.showWeeklyReport());
+    const weeklyReportDialog = document.getElementById('weekly-report-dialog');
+    document.getElementById('weekly-report-close').addEventListener('click', () => weeklyReportDialog.close());
+    document.getElementById('weekly-report-prev').addEventListener('click', () => this.navigateWeeklyReport(-1));
+    document.getElementById('weekly-report-next').addEventListener('click', () => this.navigateWeeklyReport(1));
+    weeklyReportDialog.addEventListener('click', (event) => {
+      if (event.target === weeklyReportDialog) weeklyReportDialog.close();
+    });
     document.getElementById('todo-today-btn').addEventListener('click', () => this.selectDate(this.todayKey()));
     document.addEventListener('date-selected', (e) => this.selectDate(e.detail));
     document.addEventListener('day-changed', () => this.updateCollapsedReminder());
@@ -132,10 +141,10 @@ const TodoModule = {
     const next = dates.find(key => key > this.selectedDate) || dates[0];
     this.selectDate(next);
   },
-  weekRange(now = new Date()) {
+  weekRange(offset = 0, now = new Date()) {
     const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const mondayOffset = (start.getDay() + 6) % 7;
-    start.setDate(start.getDate() - mondayOffset);
+    start.setDate(start.getDate() - mondayOffset + offset * 7);
     const end = new Date(start);
     end.setDate(end.getDate() + 7);
     return { start, end };
@@ -149,8 +158,8 @@ const TodoModule = {
     if (hours) return `${hours}h ${minutes}m`;
     return `${minutes}m`;
   },
-  async showWeeklyReport() {
-    const { start, end } = this.weekRange();
+  weekMetrics(offset = 0) {
+    const { start, end } = this.weekRange(offset);
     const startAt = start.getTime();
     const endAt = end.getTime();
     const tasks = Object.values(this.todosByDate).flat();
@@ -159,17 +168,116 @@ const TodoModule = {
     const trackedDurations = completed
       .filter(task => Number.isFinite(task.created_at) && task.completed_at >= task.created_at)
       .map(task => task.completed_at - task.created_at);
-    const average = trackedDurations.length
-      ? this.formatDuration(trackedDurations.reduce((sum, duration) => sum + duration, 0) / trackedDurations.length)
-      : 'Not enough tracked completions yet';
-    const range = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const rangeEnd = new Date(endAt - 1).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    await DialogModule.notice({
-      kicker: 'Weekly report',
-      title: `${range} – ${rangeEnd}`,
-      message: `Added: ${created.length} task${created.length === 1 ? '' : 's'} · Completed: ${completed.length} task${completed.length === 1 ? '' : 's'} · Average time to complete: ${average}`,
-      label: 'Done'
+    const daily = Array(7).fill(0);
+    completed.forEach(task => {
+      const completedDate = new Date(task.completed_at);
+      const completedMidnight = new Date(completedDate.getFullYear(), completedDate.getMonth(), completedDate.getDate()).getTime();
+      const index = Math.round((completedMidnight - startAt) / 86400000);
+      if (index >= 0 && index < 7) daily[index] += 1;
     });
+    return {
+      start,
+      end,
+      created: created.length,
+      completed: completed.length,
+      daily,
+      activeDays: daily.filter(count => count > 0).length,
+      averageDuration: trackedDurations.length ? trackedDurations.reduce((sum, duration) => sum + duration, 0) / trackedDurations.length : null,
+      trackedCompletions: trackedDurations.length
+    };
+  },
+  comparisonLabel(current, previous) {
+    if (!previous) return current ? 'First tracked week' : 'No completions yet';
+    const difference = current - previous;
+    if (!difference) return 'Same as last week';
+    return `${difference > 0 ? '+' : ''}${difference} vs last week`;
+  },
+  timeComparisonLabel(current, previous) {
+    if (!current || !previous) return 'No comparison yet';
+    const difference = current - previous;
+    if (Math.abs(difference) < 60000) return 'Same pace as last week';
+    return `${this.formatDuration(Math.abs(difference))} ${difference < 0 ? 'faster' : 'longer'} vs last week`;
+  },
+  renderWeeklyBars(current, previous) {
+    const container = document.getElementById('weekly-report-bars');
+    const peak = Math.max(...current.daily, ...previous.daily, 1);
+    const today = this.todayKey();
+    container.replaceChildren();
+    current.daily.forEach((count, index) => {
+      const date = new Date(current.start);
+      date.setDate(date.getDate() + index);
+      const bar = document.createElement('div');
+      bar.className = 'weekly-report-bar';
+      bar.style.setProperty('--bar-index', String(index));
+      if (this.keyForDate(date) === today) bar.classList.add('is-today');
+      bar.setAttribute('aria-label', `${date.toLocaleDateString('en-US', { weekday: 'long' })}: ${count} completed, compared with ${previous.daily[index]} last week`);
+      const stack = document.createElement('div');
+      stack.className = 'weekly-report-bar-stack';
+      const previousBar = document.createElement('span');
+      previousBar.className = 'weekly-report-bar-previous';
+      previousBar.style.height = `${(previous.daily[index] / peak) * 100}%`;
+      const currentBar = document.createElement('span');
+      currentBar.className = 'weekly-report-bar-current';
+      currentBar.style.height = count ? `${Math.max(8, (count / peak) * 100)}%` : '0';
+      const label = document.createElement('span');
+      label.className = 'weekly-report-bar-label';
+      label.textContent = date.toLocaleDateString('en-US', { weekday: 'narrow' });
+      stack.append(previousBar, currentBar);
+      bar.append(stack, label);
+      container.appendChild(bar);
+    });
+  },
+  keyForDate(date) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  },
+  renderWeeklyReport() {
+    const current = this.weekMetrics(this.reportWeekOffset);
+    const previous = this.weekMetrics(this.reportWeekOffset - 1);
+    const recentWeeks = [-1, -2, -3, -4].map(offset => this.weekMetrics(this.reportWeekOffset + offset));
+    const weeksWithData = recentWeeks.filter(week => week.completed > 0);
+    const baseline = weeksWithData.length
+      ? weeksWithData.reduce((sum, week) => sum + week.completed, 0) / weeksWithData.length
+      : null;
+    const range = current.start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const rangeEnd = new Date(current.end.getTime() - 1).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    document.getElementById('weekly-report-range').textContent = `${range} – ${rangeEnd}`;
+    document.getElementById('weekly-report-headline').textContent = `${current.completed} completed`;
+    document.getElementById('weekly-report-comparison').textContent = this.comparisonLabel(current.completed, previous.completed);
+    document.getElementById('weekly-report-active-days').textContent = String(current.activeDays);
+    document.getElementById('weekly-report-added').textContent = String(current.created);
+    document.getElementById('weekly-report-average').textContent = current.averageDuration ? this.formatDuration(current.averageDuration) : '—';
+    document.getElementById('weekly-report-time-change').textContent = this.timeComparisonLabel(current.averageDuration, previous.averageDuration);
+    document.getElementById('weekly-report-baseline').textContent = baseline === null ? '4-week average —' : `4-week average ${baseline.toFixed(1)}`;
+    document.getElementById('weekly-report-prev').disabled = false;
+    document.getElementById('weekly-report-next').disabled = this.reportWeekOffset >= 0;
+    this.renderWeeklyBars(current, previous);
+    const hint = document.getElementById('weekly-report-hint');
+    hint.hidden = current.trackedCompletions > 0 || current.completed === 0;
+    hint.textContent = 'Completion time starts tracking with new tasks.';
+  },
+  navigateWeeklyReport(direction) {
+    if (this.reportTransitioning) return;
+    this.reportWeekOffset = Math.min(0, this.reportWeekOffset + direction);
+    this.renderWeeklyReport();
+    const content = document.getElementById('weekly-report-content');
+    this.reportTransitioning = true;
+    content.dataset.direction = direction < 0 ? 'previous' : 'next';
+    content.classList.remove('is-updating');
+    void content.offsetWidth;
+    content.classList.add('is-updating');
+    const finishTransition = (event) => {
+      if (event.target !== content) return;
+      content.classList.remove('is-updating');
+      this.reportTransitioning = false;
+      content.removeEventListener('animationend', finishTransition);
+    };
+    content.addEventListener('animationend', finishTransition);
+  },
+  showWeeklyReport() {
+    this.reportWeekOffset = 0;
+    this.renderWeeklyReport();
+    const dialog = document.getElementById('weekly-report-dialog');
+    if (!dialog.open) dialog.showModal();
   },
   updateOpenDayControl() {
     const button = document.getElementById('todo-next-open');

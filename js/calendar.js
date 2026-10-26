@@ -66,7 +66,7 @@ const CalendarModule = {
     const current = this.viewDate || new Date();
     if (this.settings.type !== 'persian') {
       this.viewDate = new Date(current.getFullYear(), current.getMonth() + direction, 1);
-      this.render();
+      this.render(direction);
       return;
     }
 
@@ -77,17 +77,17 @@ const CalendarModule = {
       if (!month) {
         this.settings.type = 'gregorian';
         this.viewDate = new Date(current.getFullYear(), current.getMonth() + direction, 1);
-        this.render();
+        this.render(direction);
         return;
       }
       shifted = new Date(month.monthStart);
       shifted.setDate(shifted.getDate() + (direction > 0 ? month.daysInMonth : -1));
     }
     this.viewDate = shifted;
-    this.render();
+    this.render(direction);
   },
 
-  render() {
+  render(monthDirection = 0) {
     const today = new Date();
     const viewDate = this.viewDate || today;
     const todayKey = this.keyFor(today);
@@ -156,5 +156,12 @@ const CalendarModule = {
       });
       grid.appendChild(day);
     });
+    if (monthDirection) {
+      grid.dataset.direction = monthDirection > 0 ? 'next' : 'previous';
+      grid.classList.remove('is-month-transitioning');
+      void grid.offsetWidth;
+      grid.classList.add('is-month-transitioning');
+      grid.addEventListener('animationend', () => grid.classList.remove('is-month-transitioning'), { once: true });
+    }
   }
 };

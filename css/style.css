@@ -196,6 +196,16 @@ body.dark .date {
   border-color: var(--accent);
 }
 
+.weekly-report-toggle svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* ---------- Sign in / account ---------- */
 .auth-toggle {
   height: 38px;
@@ -824,42 +834,6 @@ body.dark .date {
   display: none;
 }
 
-.todo-weekly-report {
-  display: grid;
-  width: 27px;
-  height: 27px;
-  place-items: center;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
-}
-
-.todo-weekly-report svg {
-  width: 15px;
-  height: 15px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.9;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.todo-weekly-report:hover,
-.todo-weekly-report:focus-visible {
-  border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
-  background: color-mix(in srgb, var(--accent) 9%, var(--card-bg));
-  color: var(--accent);
-  outline: none;
-}
-
-.todo-card:not([open]) .todo-weekly-report {
-  display: none;
-}
-
 .todo-clear-btn {
   margin-left: auto;
   border: none;
@@ -879,7 +853,13 @@ body.dark .date {
 }
 
 /* ---------- Calendar ---------- */
-.calendar-header { justify-content: space-between; }
+.calendar-header {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) 26px;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 14px;
+}
 .calendar-nav {
   display: grid;
   width: 26px;
@@ -908,6 +888,14 @@ body.dark .date {
   font-synthesis: none;
 }
 
+.calendar-grid.is-month-transitioning[data-direction='next'] {
+  animation: calendar-slide-from-right 240ms cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.calendar-grid.is-month-transitioning[data-direction='previous'] {
+  animation: calendar-slide-from-left 240ms cubic-bezier(.22, 1, .36, 1) both;
+}
+
 .day-name {
   color: var(--text-muted);
   font-weight: 500;
@@ -927,6 +915,11 @@ body.dark .date {
 }
 
 #calendar-month-year {
+  min-width: 0;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
   font-synthesis: none;
 }
@@ -2130,6 +2123,102 @@ body.has-image-background .slogan:not(.adaptive-dark):not(.adaptive-light) {
 
 body.dark .app-dialog {
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- Weekly report ---------- */
+.weekly-report-dialog {
+  width: min(520px, calc(100vw - 32px));
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text);
+  background: var(--card-bg);
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+}
+
+.weekly-report-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.38);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+.weekly-report-dialog[open] .weekly-report-card { animation: weekly-report-enter 360ms cubic-bezier(.22, 1, .36, 1) both; }
+.weekly-report-card { position: relative; padding: 28px; }
+.weekly-report-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding-right: 36px; }
+.weekly-report-kicker { margin: 0 0 7px; color: var(--accent); font-size: 10px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+.weekly-report-card h2 { margin: 0; font-size: 22px; letter-spacing: -.035em; }
+.weekly-report-nav { display: flex; gap: 5px; }
+.weekly-report-nav button { display: grid; width: 29px; height: 29px; place-items: center; padding: 0; border: 1px solid var(--border); border-radius: 9px; background: color-mix(in srgb, var(--bg) 58%, transparent); color: var(--text-muted); cursor: pointer; font: inherit; font-size: 18px; line-height: 1; transition: color 180ms ease, background 180ms ease, border-color 180ms ease, transform 180ms ease; }
+.weekly-report-nav button:hover:not(:disabled),.weekly-report-nav button:focus-visible:not(:disabled) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--card-bg)); color: var(--accent); outline: none; transform: translateY(-1px); }
+.weekly-report-nav button:active:not(:disabled) { transform: translateY(0) scale(.94); }
+.weekly-report-nav button:disabled { cursor: default; opacity: .35; }
+.weekly-report-overview { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 23px; padding: 15px 16px; border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border)); border-radius: 15px; background: linear-gradient(115deg, color-mix(in srgb, var(--accent) 14%, var(--card-bg)), color-mix(in srgb, var(--accent) 4%, var(--card-bg))); }
+.weekly-report-overview-copy { display: grid; gap: 3px; min-width: 0; }
+.weekly-report-overview-copy > span,.weekly-report-overview-copy small { color: var(--text-muted); font-size: 11px; }
+.weekly-report-overview-copy strong { overflow: hidden; font-size: 21px; letter-spacing: -.035em; text-overflow: ellipsis; white-space: nowrap; }
+.weekly-report-active-days { display: flex; align-items: center; gap: 7px; flex: 0 0 auto; padding-left: 15px; border-left: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border)); }
+.weekly-report-active-days strong { font-size: 27px; font-variant-numeric: tabular-nums; letter-spacing: -.06em; }
+.weekly-report-active-days span { color: var(--text-muted); font-size: 10px; line-height: 1.25; }
+.weekly-report-chart { margin-top: 20px; }
+.weekly-report-chart-heading { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 10px; color: var(--text-muted); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+.weekly-report-chart-heading span:last-child { letter-spacing: normal; text-transform: none; }
+.weekly-report-bars { display: grid; grid-template-columns: repeat(7, 1fr); align-items: end; gap: 7px; min-height: 104px; padding: 8px 4px 0; border-bottom: 1px solid var(--border); }
+.weekly-report-bar { display: grid; grid-template-rows: 72px auto; gap: 8px; min-width: 0; text-align: center; }
+.weekly-report-bar-stack { position: relative; display: flex; align-items: end; justify-content: center; height: 72px; }
+.weekly-report-bar-previous,.weekly-report-bar-current { width: min(100%, 24px); border-radius: 7px 7px 3px 3px; }
+.weekly-report-bar-previous { position: absolute; bottom: 0; background: color-mix(in srgb, var(--text-muted) 22%, transparent); }
+.weekly-report-bar-current { position: relative; bottom: 0; min-height: 3px; background: var(--accent); box-shadow: 0 5px 14px color-mix(in srgb, var(--accent) 22%, transparent); }
+.weekly-report-bar.is-today .weekly-report-bar-current { background: color-mix(in srgb, var(--accent) 84%, #fff); }
+.weekly-report-bar-label { color: var(--text-muted); font-size: 10px; }
+.weekly-report-bar.is-today .weekly-report-bar-label { color: var(--text); font-weight: 750; }
+.weekly-report-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 20px; }
+.weekly-metric { display: grid; grid-template-columns: 19px minmax(0, 1fr); column-gap: 8px; min-height: 76px; padding: 13px; border: 1px solid var(--border); border-radius: 14px; background: color-mix(in srgb, var(--bg) 55%, transparent); }
+.weekly-metric svg { width: 17px; height: 17px; fill: none; stroke: var(--text-muted); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.weekly-metric strong { overflow: hidden; font-size: 21px; font-variant-numeric: tabular-nums; letter-spacing: -.05em; text-overflow: ellipsis; white-space: nowrap; }
+.weekly-metric span { align-self: end; color: var(--text-muted); font-size: 11px; }
+.weekly-metric small { grid-column: 2; overflow: hidden; margin-top: 1px; color: var(--text-muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.weekly-metric-added { border-color: color-mix(in srgb, var(--accent) 32%, var(--border)); background: color-mix(in srgb, var(--accent) 8%, var(--card-bg)); }
+.weekly-metric-time svg { stroke: #d3a331; }
+.weekly-report-hint { margin: 14px 0 0; color: var(--text-muted); font-size: 11px; line-height: 1.45; text-align: center; }
+.weekly-report-content.is-updating[data-direction='next'] { animation: weekly-report-slide-from-right 260ms cubic-bezier(.22, 1, .36, 1) both; }
+.weekly-report-content.is-updating[data-direction='previous'] { animation: weekly-report-slide-from-left 260ms cubic-bezier(.22, 1, .36, 1) both; }
+.weekly-report-content.is-updating .weekly-report-bar-current { transform-origin: bottom; animation: weekly-bar-grow 340ms cubic-bezier(.22, 1, .36, 1) calc(var(--bar-index) * 25ms) both; }
+.weekly-report-content.is-updating .weekly-report-bar-previous { transform-origin: bottom; animation: weekly-bar-grow 280ms ease-out calc(var(--bar-index) * 18ms) both; }
+.weekly-report-overview,.weekly-metric { transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background 180ms ease; }
+.weekly-report-overview:hover,.weekly-metric:hover { transform: translateY(-2px); box-shadow: 0 9px 20px color-mix(in srgb, var(--accent) 10%, transparent); }
+body.dark .weekly-report-dialog { box-shadow: 0 24px 64px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
+
+@keyframes calendar-slide-from-right {
+  from { opacity: 0; transform: translateX(9px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes calendar-slide-from-left {
+  from { opacity: 0; transform: translateX(-9px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes weekly-report-enter {
+  from { opacity: 0; transform: translateY(10px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes weekly-report-slide-from-right {
+  from { opacity: .25; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes weekly-report-slide-from-left {
+  from { opacity: .25; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes weekly-bar-grow {
+  from { transform: scaleY(.14); opacity: .25; }
+  to { transform: scaleY(1); opacity: 1; }
 }
 
 /* ---------- First-run onboarding ---------- */
