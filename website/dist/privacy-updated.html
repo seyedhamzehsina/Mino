@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Mino privacy policy.">
+  <title>Privacy · Mino</title>
+  <link rel="icon" type="image/svg+xml" href="images/mino-logo-icon.svg">
+  <style>
+    :root{--night:#081521;--orange:#ff9d68;--line:rgba(235,249,247,.15)}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% -8%,#244c52,transparent 31%),var(--night);color:#f6fbfa;font:16px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}.shell{width:min(850px,calc(100% - 40px));margin:auto}a{color:inherit}.nav{display:flex;align-items:center;justify-content:space-between;height:92px}.brand{display:flex;align-items:center;gap:11px;font-size:1.08rem;font-weight:720;letter-spacing:-.045em;text-decoration:none}.brand img{width:30px;height:30px}.back{color:rgba(241,250,249,.6);font-size:.88rem;text-decoration:none}.back:hover{color:#fff}.eyebrow{margin:0 0 16px;color:var(--orange);font-size:.75rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}main{padding:80px 0 105px}h1{max-width:690px;margin:0;font-size:clamp(3.4rem,7vw,6.1rem);letter-spacing:-.08em;line-height:.9}.intro{max-width:570px;margin:26px 0 0;color:rgba(241,250,249,.67);font-size:1.06rem}.updated{display:inline-block;margin-top:28px;color:rgba(241,250,249,.5);font-size:.78rem}.policy{margin-top:58px;border-top:1px solid var(--line)}.policy section{padding:31px 0;border-bottom:1px solid var(--line)}h2{margin:0 0 9px;font-size:1.24rem;letter-spacing:-.03em}p{margin:0;color:rgba(241,250,249,.63);font-size:.96rem}.closing{margin-top:52px;padding:28px;border:1px solid rgba(255,157,104,.24);border-radius:20px;background:rgba(255,157,104,.065)}.footer{padding:25px 0 34px;color:rgba(241,250,249,.43);font-size:.78rem}@media(max-width:600px){.shell{width:min(100% - 32px,600px)}main{padding:56px 0 74px}.policy{margin-top:42px}.policy section{padding:25px 0}}
+  </style>
+</head>
+<body>
+  <nav class="shell nav"><a class="brand" href="index.html"><img src="images/mino-logo-icon.svg" alt="">Mino</a><a class="back" href="index.html">← Back to Mino</a></nav>
+  <main class="shell">
+    <p class="eyebrow">Privacy, clearly stated</p>
+    <h1>Your workspace<br>is yours.</h1>
+    <p class="intro">Mino is designed to help you focus—not to profile you. Here is exactly what is stored, synchronized, and why.</p>
+    <span class="updated">Last updated · November 3, 2026</span>
+    <div class="policy">
+      <section><h2>Stored locally</h2><p>Mino keeps a local working copy of your tasks, shortcuts, appearance preferences, and your analytics choice in Chrome extension storage on your device.</p></section>
+      <section><h2>Account and sync</h2><p>If you choose Google sign-in, Mino stores your account identifier, verified email address, and display name. Your tasks, shortcuts, clock preferences, and appearance settings are synchronized to your private Supabase workspace.</p></section>
+      <section><h2>Third-party requests</h2><p>A submitted search is passed through Chrome's Search API to the provider you selected in Chrome. Mino does not choose a provider, request search suggestions, or collect search queries. Shortcut favicons may be requested only to display the shortcut you created.</p></section>
+      <section><h2>Optional anonymous analytics</h2><p>Only if you explicitly enable anonymous analytics, Mino sends limited feature-use events to Google Analytics through a secure Supabase Edge Function. Events are limited to opening Mino, creating or completing a task, opening or navigating the weekly report, changing calendar months, and clicking a default or custom shortcut. For built-in shortcuts only, Mino may record the built-in shortcut category (Google, Gmail, GitHub, or YouTube); it never sends custom shortcut names or URLs. Mino does not send task text, search terms, email addresses, Google account information, or synced workspace content for analytics. A random installation identifier is created only after you opt in and is not linked to your Mino account. You can turn analytics off at any time in Settings.</p></section>
+      <section><h2>How data is used</h2><p>Mino does not sell personal data, use it for advertising, or share it beyond the services needed for sign-in, shortcut favicons, a user-initiated search through Chrome, private workspace synchronization, and optional anonymous analytics.</p></section>
+      <section><h2>Your choices</h2><p>You can use Mino without an account and without analytics. Local data can be removed by uninstalling the extension. Synced data stays in the configured Supabase project until it is deleted there.</p></section>
+    </div>
+    <div class="closing"><h2>Questions about privacy?</h2><p>For privacy questions or account-data deletion requests, open an issue at <a href="https://github.com/seyedhamzehsina/Mino/issues">github.com/seyedhamzehsina/Mino/issues</a>.</p></div>
+  </main>
+  <footer class="shell footer">© 2026 Mino. Everything essential. Nothing extra.</footer>
+</body>
+</html>

@@ -8,7 +8,7 @@
 </head>
 <body>
   <h1>Mino Privacy Policy</h1>
-  <p><small>Last updated: October 25, 2026</small></p>
+  <p><small>Last updated: November 3, 2026</small></p>
   <p>Mino is a Chrome new-tab extension. It provides a clock, calendar, daily todo list, web search, shortcuts, and optional account-based workspace synchronization.</p>
   <h2>Data stored locally</h2>
   <p>Mino stores a local working copy of your todos, shortcuts, and appearance preferences in Chrome extension storage on your device. These settings are synchronized to your private workspace after account setup.</p>
@@ -18,6 +18,8 @@
   <p>When you submit a search, Mino passes it through Chrome's Search API to the search provider you selected in Chrome. Mino does not choose a provider, request search suggestions, or collect search queries. Shortcut icons may be requested from Google's favicon service using the shortcut URL. These requests are made only to provide the visible feature you use.</p>
   <h2>Data sharing and retention</h2>
   <p>Mino does not share personal data with third parties except the services needed for the features above: Google for sign-in and shortcut favicons; Chrome's user-selected search provider for a user-initiated search; and Supabase for account authentication and workspace synchronization. Local data can be removed by uninstalling the extension. Synced data is retained by the configured Supabase project until it is deleted there or through its retention settings.</p>
+  <h2>Optional anonymous analytics</h2>
+  <p>Only if you explicitly enable anonymous analytics, Mino sends limited feature-use events to Google Analytics through a secure Supabase Edge Function. These events are limited to opening Mino, creating or completing a task, opening or navigating the weekly report, changing calendar months, and clicking a default or custom shortcut. For built-in shortcuts only, Mino may record the built-in shortcut category (Google, Gmail, GitHub, or YouTube); it never sends custom shortcut names or URLs. Mino does not send task text, search terms, email addresses, Google account information, or synced workspace content for analytics. A random installation identifier is created only after you opt in and is not linked to your Mino account. You can turn analytics off at any time in Settings.</p>
   <h2>Security</h2>
   <p>Network requests use HTTPS. Mino uses a public Supabase publishable key in the extension and relies on Supabase row-level security so authenticated users can access only their own workspace data.</p>
   <h2>Google API Services User Data Policy</h2>

@@ -76,11 +76,13 @@ const TodoModule = {
     const text = input.value.trim();
     if (!text) return;
     const now = Date.now();
+    const isFirstTask = Object.values(this.todosByDate).flat().length === 0;
     this.todos = [...this.todos, { id: crypto.randomUUID(), text, done: false, created_at: now, updated_at: now, dirty: true }];
     input.value = '';
     await this.save();
     this.render();
     this.notifyCalendar();
+    AnalyticsModule.track(isFirstTask ? 'first_task_created' : 'task_created');
     const list = document.getElementById('todo-list');
     list.scrollTop = list.scrollHeight;
   },
@@ -97,6 +99,8 @@ const TodoModule = {
     await this.save();
     this.render();
     this.notifyCalendar();
+    const updated = this.todos.find(t => t.id === id);
+    if (updated?.done) AnalyticsModule.track('task_completed');
   },
   async deleteTodo(id) {
     const todo = this.todos.find(t => t.id === id);
@@ -258,6 +262,7 @@ const TodoModule = {
   navigateWeeklyReport(direction) {
     if (this.reportTransitioning) return;
     this.reportWeekOffset = Math.min(0, this.reportWeekOffset + direction);
+    AnalyticsModule.track('weekly_report_week_changed', { direction: direction < 0 ? 'previous' : 'next' });
     this.renderWeeklyReport();
     const content = document.getElementById('weekly-report-content');
     this.reportTransitioning = true;
@@ -278,6 +283,7 @@ const TodoModule = {
     this.renderWeeklyReport();
     const dialog = document.getElementById('weekly-report-dialog');
     if (!dialog.open) dialog.showModal();
+    AnalyticsModule.track('weekly_report_opened');
   },
   updateOpenDayControl() {
     const button = document.getElementById('todo-next-open');

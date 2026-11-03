@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
   DialogModule.init();
+  await AnalyticsModule.init();
   // These modules only read their own state during startup, so initialize
   // them concurrently instead of making the new-tab view wait on each read.
   await Promise.all([
@@ -15,4 +16,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   await OnboardingModule.init();
   await ReleaseNotesModule.init();
   await QueensModule.init();
+  AnalyticsModule.track('mino_opened');
+  AnalyticsModule.promptIfNeeded();
 });

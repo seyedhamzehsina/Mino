@@ -1,5 +1,10 @@
 const ReleaseNotesModule = {
   releases: {
+    '1.2.5': {
+      kicker: 'Privacy choice',
+      title: 'Anonymous analytics, only if you choose',
+      message: 'Mino can now measure feature-use counts to guide future improvements. It is off by default, never includes task text, search terms, links, or account data, and can be changed anytime in Settings.'
+    },
     '1.2.3': {
       kicker: 'What’s new',
       title: 'More clarity, without more clutter',

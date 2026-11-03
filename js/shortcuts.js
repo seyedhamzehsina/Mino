@@ -128,6 +128,12 @@ const ShortcutsModule = {
       const a = document.createElement('a');
       a.className = 'shortcut-item';
       a.href = sc.url;
+      a.addEventListener('click', () => {
+        const builtIn = this.getDefaultShortcuts().find(defaultShortcut => defaultShortcut.id === sc.id && defaultShortcut.url === sc.url);
+        AnalyticsModule.track('shortcut_clicked', builtIn
+          ? { shortcut_kind: 'default', shortcut_id: builtIn.name.toLowerCase() }
+          : { shortcut_kind: 'custom' });
+      });
       const icon = document.createElement('div');
       icon.className = 'shortcut-icon';
       const img = document.createElement('img');

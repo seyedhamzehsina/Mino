@@ -367,6 +367,27 @@ body.dark .date {
   cursor: pointer;
 }
 
+.setting-row-analytics { align-items: flex-start; }
+.setting-row-analytics > span { display: grid; gap: 3px; line-height: 1.3; }
+.setting-row-analytics strong { font-size: 13px; font-weight: 650; }
+.setting-row-analytics small { max-width: 190px; color: var(--text-muted); font-size: 10px; }
+.setting-row-analytics input { flex: 0 0 auto; margin-top: 2px; }
+
+.analytics-consent-dialog { width: min(430px, calc(100% - 32px)); margin: auto; padding: 0; border: 0; border-radius: 18px; background: transparent; color: var(--text); }
+.analytics-consent-dialog::backdrop { background: rgba(8, 15, 28, .62); backdrop-filter: blur(4px); }
+.analytics-consent-card { position: relative; padding: 25px; border: 1px solid var(--border); border-radius: 18px; background: var(--card-bg); box-shadow: 0 24px 70px rgba(0, 0, 0, .32); }
+.analytics-consent-close { position: absolute; top: 12px; right: 14px; border: 0; background: transparent; color: var(--text-muted); cursor: pointer; font-size: 22px; line-height: 1; }
+.analytics-consent-close:hover, .analytics-consent-close:focus-visible { color: var(--text); outline: none; }
+.analytics-consent-kicker { margin: 0 0 7px; color: var(--accent); font-size: 10px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+.analytics-consent-card h2 { max-width: 330px; margin: 0; font-size: 20px; letter-spacing: -.035em; }
+.analytics-consent-card p:not(.analytics-consent-kicker) { margin: 13px 0 0; color: var(--text-muted); font-size: 12px; line-height: 1.55; }
+.analytics-consent-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 20px; }
+.analytics-consent-actions button { min-height: 38px; border-radius: 10px; padding: 0 13px; cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; }
+.analytics-consent-secondary { border: 1px solid var(--border); background: transparent; color: var(--text); }
+.analytics-consent-primary { border: 1px solid var(--accent); background: var(--accent); color: #fff; box-shadow: 0 5px 16px var(--accent-glow); }
+.analytics-consent-actions button:hover, .analytics-consent-actions button:focus-visible { transform: translateY(-1px); outline: none; }
+.analytics-consent-card > a { display: inline-block; margin-top: 15px; color: var(--text-muted); font-size: 11px; }
+
 .color-options {
   display: flex;
   gap: 6px;

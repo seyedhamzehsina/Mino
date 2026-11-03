@@ -63,6 +63,7 @@ const CalendarModule = {
   },
 
   shiftMonth(direction) {
+    AnalyticsModule.track('calendar_month_changed', { direction: direction < 0 ? 'previous' : 'next' });
     const current = this.viewDate || new Date();
     if (this.settings.type !== 'persian') {
       this.viewDate = new Date(current.getFullYear(), current.getMonth() + direction, 1);

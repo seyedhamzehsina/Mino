@@ -302,6 +302,10 @@
         <span>Display name</span>
         <input type="text" id="setting-name" placeholder="e.g. Alex" maxlength="30">
       </label>
+      <label class="setting-row setting-row-analytics">
+        <span><strong>Anonymous analytics</strong><small>Share feature-use counts only. Never task text, searches, links, or account details.</small></span>
+        <input type="checkbox" id="setting-analytics" aria-label="Share anonymous analytics">
+      </label>
       <button id="settings-support-open" class="settings-support-trigger" type="button" aria-haspopup="dialog">
         <span class="settings-support-trigger-mark" aria-hidden="true">₮</span>
         <span class="settings-support-trigger-copy"><strong>Support Mino</strong><small>USDT · Ethereum</small></span>
@@ -314,8 +318,24 @@
     </div>
   </div>
 
+  <dialog id="analytics-consent-dialog" class="analytics-consent-dialog" aria-labelledby="analytics-consent-title">
+    <div class="analytics-consent-card">
+      <button id="analytics-consent-close" class="analytics-consent-close" type="button" aria-label="No thanks">×</button>
+      <p class="analytics-consent-kicker">Help improve Mino</p>
+      <h2 id="analytics-consent-title">Share anonymous feature-use counts?</h2>
+      <p>Mino can measure which features are used—such as creating or completing a task, opening the weekly report, changing months, or clicking a shortcut.</p>
+      <p>It never sends task text, search terms, custom shortcut names or URLs, your email, or Google account data. You can change this anytime in Settings.</p>
+      <div class="analytics-consent-actions">
+        <button id="analytics-consent-decline" class="analytics-consent-secondary" type="button">Not now</button>
+        <button id="analytics-consent-allow" class="analytics-consent-primary" type="button">Allow anonymous analytics</button>
+      </div>
+      <a href="https://minotab.site/privacy" target="_blank" rel="noopener noreferrer">Read the privacy policy</a>
+    </div>
+  </dialog>
+
   <script src="js/storage.js"></script>
   <script src="js/config.js"></script>
+  <script src="js/analytics.js"></script>
   <script src="js/dialog.js"></script>
   <script src="js/clock.js"></script>
   <script src="js/calendar.js"></script>
