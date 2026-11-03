@@ -1,7 +1,7 @@
 const CalendarModule = {
   settings: { type: 'gregorian' },
   viewDate: null,
-  jalaliMonths: ['Farvardin', 'Ordibehesht', 'Khordad', 'Tir', 'Mordad', 'Shahrivar', 'Mehr', 'Aban', 'Azar', 'Dey', 'Bahman', 'Esfand'],
+  supportedTypes: new Set(['gregorian', 'islamic', 'persian']),
 
   async init() {
     const saved = await StorageManager.get('calendarSettings');
@@ -15,9 +15,11 @@ const CalendarModule = {
   },
 
   setType(type) {
-    this.settings.type = type === 'persian' ? 'persian' : 'gregorian';
+    this.settings.type = this.supportedTypes.has(type) ? type : 'gregorian';
+    this.viewDate = new Date();
     StorageManager.set('calendarSettings', this.settings);
     this.render();
+    document.dispatchEvent(new Event('calendar-type-changed'));
   },
 
   dateKey(year, month, day) {
@@ -28,9 +30,10 @@ const CalendarModule = {
     return this.dateKey(date.getFullYear(), date.getMonth(), date.getDate());
   },
 
-  jalaliParts(date) {
+  calendarParts(date, type = this.settings.type) {
+    if (type === 'gregorian') return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
     try {
-      const parts = new Intl.DateTimeFormat('en-US-u-ca-persian', { year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(date);
+      const parts = new Intl.DateTimeFormat(`en-US-u-ca-${type}`, { year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(date);
       const pick = type => {
         const part = parts.find(item => item.type === type);
         return part ? parseInt(part.value, 10) : null;
@@ -45,27 +48,39 @@ const CalendarModule = {
     }
   },
 
-  jalaliMonthInfo(date) {
-    const parts = this.jalaliParts(date);
+  monthInfo(date, type = this.settings.type) {
+    if (type === 'gregorian') {
+      const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+      return { year: date.getFullYear(), month: date.getMonth() + 1, day: 1, monthStart, daysInMonth: new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate(), monthLabel: monthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) };
+    }
+    const parts = this.calendarParts(date, type);
     if (!parts) return null;
     const monthStart = new Date(date.getFullYear(), date.getMonth(), date.getDate() - (parts.day - 1));
-    let daysInMonth = 30;
-    for (let offset = 29; offset <= 31; offset++) {
+    let daysInMonth = 31;
+    for (let offset = 1; offset <= 35; offset++) {
       const probe = new Date(monthStart);
       probe.setDate(monthStart.getDate() + offset);
-      const probeParts = this.jalaliParts(probe);
-      if (!probeParts || probeParts.month !== parts.month) {
+      const probeParts = this.calendarParts(probe, type);
+      if (!probeParts || probeParts.month !== parts.month || probeParts.year !== parts.year) {
         daysInMonth = offset;
         break;
       }
     }
-    return { ...parts, monthStart, daysInMonth };
+    const monthLabel = new Intl.DateTimeFormat('en-US', { calendar: type, month: 'long', year: 'numeric' }).format(monthStart);
+    return { ...parts, monthStart, daysInMonth, monthLabel };
+  },
+
+  formatDateKey(key) {
+    const [year, month, day] = key.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    const calendar = this.settings.type === 'gregorian' ? 'gregory' : this.settings.type;
+    return new Intl.DateTimeFormat('en-US', { calendar, weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }).format(date);
   },
 
   shiftMonth(direction) {
     AnalyticsModule.track('calendar_month_changed', { direction: direction < 0 ? 'previous' : 'next' });
     const current = this.viewDate || new Date();
-    if (this.settings.type !== 'persian') {
+    if (this.settings.type === 'gregorian') {
       this.viewDate = new Date(current.getFullYear(), current.getMonth() + direction, 1);
       this.render(direction);
       return;
@@ -74,7 +89,7 @@ const CalendarModule = {
     let shifted = new Date(current);
     const steps = Math.abs(direction);
     for (let step = 0; step < steps; step++) {
-      const month = this.jalaliMonthInfo(shifted);
+      const month = this.monthInfo(shifted);
       if (!month) {
         this.settings.type = 'gregorian';
         this.viewDate = new Date(current.getFullYear(), current.getMonth() + direction, 1);
@@ -99,8 +114,8 @@ const CalendarModule = {
     grid.replaceChildren();
     grid.dataset.calendarType = this.settings.type;
 
-    const isPersian = this.settings.type === 'persian';
-    const days = isPersian
+    const isLocalized = this.settings.type !== 'gregorian';
+    const days = isLocalized
       ? ['Sa', 'Su', 'Mo', 'Tu', 'We', 'Th', 'Fr']
       : ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
     days.forEach(day => {
@@ -112,20 +127,20 @@ const CalendarModule = {
 
     let monthLabel = '';
     const cells = [];
-    if (isPersian) {
-      const month = this.jalaliMonthInfo(viewDate);
+    if (isLocalized) {
+      const month = this.monthInfo(viewDate);
       if (!month) {
         this.settings.type = 'gregorian';
         this.render();
         return;
       }
-      monthLabel = `${this.jalaliMonths[month.month - 1]} ${month.year}`;
+      monthLabel = month.monthLabel;
       const firstDay = (month.monthStart.getDay() + 1) % 7;
       for (let index = 0; index < firstDay; index++) cells.push(null);
       for (let day = 1; day <= month.daysInMonth; day++) {
         const cellDate = new Date(month.monthStart);
         cellDate.setDate(month.monthStart.getDate() + day - 1);
-        cells.push({ label: day, date: cellDate });
+        cells.push({ label: this.calendarParts(cellDate).day, date: cellDate });
       }
     } else {
       const year = viewDate.getFullYear();

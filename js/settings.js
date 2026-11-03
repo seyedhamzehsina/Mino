@@ -185,12 +185,39 @@ const SettingsModule = {
     });
 
     const calendarOptions = document.getElementById('setting-calendar');
-    calendarOptions.querySelectorAll('button').forEach(btn => {
-      btn.classList.toggle('selected', btn.dataset.calendar === CalendarModule.settings.type);
-      btn.addEventListener('click', () => {
-        CalendarModule.setType(btn.dataset.calendar);
-        calendarOptions.querySelectorAll('button').forEach(option => option.classList.toggle('selected', option === btn));
+    const calendarTrigger = calendarOptions.querySelector('.calendar-picker-trigger');
+    const calendarMenu = calendarOptions.querySelector('.calendar-picker-menu');
+    const calendarValue = calendarOptions.querySelector('.calendar-picker-value');
+    const calendarLabels = { gregorian: 'Gregorian', islamic: 'Hijri', persian: 'Persian' };
+    const refreshCalendarPicker = () => {
+      const value = CalendarModule.settings.type;
+      calendarValue.textContent = calendarLabels[value] || calendarLabels.gregorian;
+      calendarMenu.querySelectorAll('[role="option"]').forEach(option => {
+        const selected = option.dataset.calendar === value;
+        option.classList.toggle('selected', selected);
+        option.setAttribute('aria-selected', String(selected));
       });
+    };
+    refreshCalendarPicker();
+    calendarTrigger.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const open = calendarMenu.hidden;
+      calendarMenu.hidden = !open;
+      calendarTrigger.setAttribute('aria-expanded', String(open));
+    });
+    calendarMenu.querySelectorAll('[role="option"]').forEach(option => {
+      option.addEventListener('click', () => {
+        CalendarModule.setType(option.dataset.calendar);
+        refreshCalendarPicker();
+        calendarMenu.hidden = true;
+        calendarTrigger.setAttribute('aria-expanded', 'false');
+      });
+    });
+    document.addEventListener('click', (event) => {
+      if (!calendarOptions.contains(event.target)) {
+        calendarMenu.hidden = true;
+        calendarTrigger.setAttribute('aria-expanded', 'false');
+      }
     });
 
     const accentContainer = document.getElementById('accent-options');

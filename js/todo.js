@@ -44,6 +44,7 @@ const TodoModule = {
     });
     document.getElementById('todo-today-btn').addEventListener('click', () => this.selectDate(this.todayKey()));
     document.addEventListener('date-selected', (e) => this.selectDate(e.detail));
+    document.addEventListener('calendar-type-changed', () => this.render());
     document.addEventListener('day-changed', () => this.updateCollapsedReminder());
     document.getElementById('todo-panel').addEventListener('toggle', () => this.updateCollapsedReminder());
   },
@@ -339,7 +340,7 @@ const TodoModule = {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     if (key === `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`) return 'Tomorrow';
-    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    return CalendarModule.formatDateKey(key);
   },
   render() {
     const label = document.getElementById('todo-date-label');

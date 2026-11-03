@@ -3,7 +3,7 @@ const ReleaseNotesModule = {
     '1.2.5': {
       kicker: 'Privacy choice',
       title: 'Anonymous analytics, only if you choose',
-      message: 'Mino can now measure feature-use counts to guide future improvements. It is off by default, never includes task text, search terms, links, or account data, and can be changed anytime in Settings.'
+      message: 'Mino can now measure feature-use counts to guide future improvements. It is off by default, never includes task text, search terms, links, or account data, and can be changed anytime in Settings. Calendar display now supports Gregorian, Hijri, and Persian dates, with your todo day labels following the same choice.'
     },
     '1.2.3': {
       kicker: 'What’s new',

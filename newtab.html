@@ -285,9 +285,16 @@
       </label>
       <label class="setting-row">
         <span>Calendar</span>
-        <span class="calendar-options" id="setting-calendar" role="group" aria-label="Calendar type">
-          <button type="button" data-calendar="gregorian">Gregorian</button>
-          <button type="button" data-calendar="persian">Persian</button>
+        <span class="calendar-picker" id="setting-calendar">
+          <button class="calendar-picker-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span class="calendar-picker-value">Gregorian</span>
+            <span class="calendar-picker-chevron" aria-hidden="true"></span>
+          </button>
+          <span class="calendar-picker-menu" role="listbox" hidden>
+            <button type="button" role="option" data-calendar="gregorian">Gregorian</button>
+            <button type="button" role="option" data-calendar="islamic">Hijri</button>
+            <button type="button" role="option" data-calendar="persian">Persian</button>
+          </span>
         </span>
       </label>
       <label class="setting-row">
