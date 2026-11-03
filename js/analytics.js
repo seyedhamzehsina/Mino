@@ -76,8 +76,7 @@ const AnalyticsModule = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          apikey: SyncConfig.SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${SyncConfig.SUPABASE_ANON_KEY}`
+          apikey: SyncConfig.SUPABASE_ANON_KEY
         },
         body: JSON.stringify({ client_id: clientId, event: { name, params: parameters } })
       });

@@ -1,4 +1,4 @@
-import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
+import { withSupabase } from 'npm:@supabase/server@1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -36,8 +36,7 @@ function validParameters(name: string, params: unknown) {
   return next;
 }
 
-serve(async (request) => {
-  if (request.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+const handler = withSupabase({ auth: 'publishable' }, async (request) => {
   if (request.method !== 'POST') return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers: corsHeaders });
 
   try {
@@ -69,3 +68,11 @@ serve(async (request) => {
     return new Response(JSON.stringify({ error: 'Analytics unavailable' }), { status: 502, headers: corsHeaders });
   }
 });
+
+export default {
+  fetch: async (request: Request) => {
+    // Browser preflight requests intentionally arrive without an API key.
+    if (request.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+    return handler(request);
+  }
+};
