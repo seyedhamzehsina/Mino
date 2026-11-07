@@ -51,6 +51,9 @@ const SettingsModule = {
     if (!this.gradients[this.settings.lastGradient]) this.settings.lastGradient = 'sunset';
     this.apply();
     this.buildPanel();
+    const version = globalThis.chrome?.runtime?.getManifest?.().version || '1.2.5';
+    const versionLabel = document.getElementById('settings-version');
+    if (versionLabel) versionLabel.textContent = `Mino v${version}`;
     document.getElementById('settings-toggle').addEventListener('click', () => {
       const panel = document.getElementById('settings-panel');
       if (panel.hidden) this.openPanel();

@@ -66,15 +66,27 @@ const CalendarModule = {
         break;
       }
     }
-    const monthLabel = new Intl.DateTimeFormat('en-US', { calendar: type, month: 'long', year: 'numeric' }).format(monthStart);
+    const monthLabel = this.formatCalendarDate(monthStart, { calendar: type, month: 'long', year: 'numeric' });
     return { ...parts, monthStart, daysInMonth, monthLabel };
+  },
+
+  formatCalendarDate(date, options) {
+    const formatter = new Intl.DateTimeFormat('en-US', options);
+    // Intl adds an era (for example, "AP" for Persian dates) in some
+    // browsers. It adds no useful context here and makes the compact UI noisy.
+    return formatter.formatToParts(date)
+      .filter(part => part.type !== 'era')
+      .map(part => part.value)
+      .join('')
+      .replace(/\s+/g, ' ')
+      .trim();
   },
 
   formatDateKey(key) {
     const [year, month, day] = key.split('-').map(Number);
     const date = new Date(year, month - 1, day);
     const calendar = this.settings.type === 'gregorian' ? 'gregory' : this.settings.type;
-    return new Intl.DateTimeFormat('en-US', { calendar, weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }).format(date);
+    return this.formatCalendarDate(date, { calendar, weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
   },
 
   shiftMonth(direction) {

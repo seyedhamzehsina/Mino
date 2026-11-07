@@ -140,11 +140,19 @@ const TodoModule = {
       .filter(key => this.hasOpenTodos(key))
       .sort();
   },
-  goToNextOpenDay() {
+  openDayNavigation() {
     const dates = this.openTodoDates();
-    if (!dates.length) return;
-    const next = dates.find(key => key > this.selectedDate) || dates[0];
-    this.selectDate(next);
+    const next = dates.find(key => key > this.selectedDate);
+    if (next) return { date: next, direction: 'next' };
+
+    const previous = [...dates].reverse().find(key => key < this.selectedDate);
+    if (previous) return { date: previous, direction: 'previous' };
+
+    return null;
+  },
+  goToNextOpenDay() {
+    const navigation = this.openDayNavigation();
+    if (navigation) this.selectDate(navigation.date);
   },
   weekRange(offset = 0, now = new Date()) {
     const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -289,11 +297,16 @@ const TodoModule = {
   updateOpenDayControl() {
     const button = document.getElementById('todo-next-open');
     if (!button) return;
-    const dates = this.openTodoDates();
-    button.disabled = dates.length === 0;
-    const description = dates.length
-      ? `Go to the next of ${dates.length} day${dates.length === 1 ? '' : 's'} with open tasks`
-      : 'No days with open tasks';
+    const label = button.querySelector('span');
+    const navigation = this.openDayNavigation();
+    button.disabled = !navigation;
+    button.classList.toggle('is-previous', navigation?.direction === 'previous');
+    if (label) label.textContent = navigation?.direction === 'previous' ? 'Previous open' : 'Next open';
+    const description = !navigation
+      ? 'No other days with open tasks'
+      : navigation.direction === 'previous'
+        ? 'Go to the previous day with open tasks'
+        : 'Go to the next day with open tasks';
     button.title = description;
     button.setAttribute('aria-label', description);
   },

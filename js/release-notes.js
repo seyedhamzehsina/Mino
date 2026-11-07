@@ -1,5 +1,10 @@
 const ReleaseNotesModule = {
   releases: {
+    '1.2.6': {
+      kicker: 'A calmer workspace',
+      title: 'Your workspace remembers you',
+      message: 'Todo and Calendar now stay open exactly as you left them. Calendar days are clearer at a glance, and the refined task navigation makes it easier to move through open work.'
+    },
     '1.2.5': {
       kicker: 'Privacy choice',
       title: 'Anonymous analytics, only if you choose',
